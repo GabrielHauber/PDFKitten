@@ -1,11 +1,11 @@
-#import <SenTestingKit/SenTestingKit.h>
-#import "StringDetector.h"
+#import <XCTest/XCTest.h>
+#import "PDFStringDetector.h"
 
-@interface StringDetectorTest : SenTestCase <StringDetectorDelegate> {
+@interface StringDetectorTest : XCTestCase <PDFStringDetectorDelegate> {
     int matchCount;
     int prefixCount;
     NSString *kurtStory;
-    StringDetector *stringDetector;
+    PDFStringDetector *stringDetector;
 }
 
 @end
