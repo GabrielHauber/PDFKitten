@@ -91,14 +91,13 @@ const char *kFontFileKey = "FontFile";
 		if (CGPDFDictionaryGetStream(dict, kFontFileKey, &fontFileStream))
 		{
 			CGPDFDataFormat format;
-			NSData *data = (NSData *) CGPDFStreamCopyData(fontFileStream, &format);
+			NSData *data = (NSData *) CFBridgingRelease(CGPDFStreamCopyData(fontFileStream, &format));
 			/*
 	 		NSString *path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
 			path = [path stringByAppendingPathComponent:@"fontfile"];
 			[data writeToFile:path atomically:YES];
 			  */
 			fontFile = [[FontFile alloc] initWithData:data];
-			[data release];
 		}
 
 	}
@@ -142,12 +141,6 @@ const char *kFontFileKey = "FontFile";
 
 #pragma mark Memory Management
 
-- (void)dealloc
-{
-	[fontFile release];
-	[fontName release];
-	[super dealloc];
-}
 
 @synthesize ascent, descent, bounds, leading, capHeight, averageWidth, maxWidth, missingWidth, xHeight, flags, verticalStemWidth, horizontalStemWidth, italicAngle, fontName;
 @synthesize fontFile;

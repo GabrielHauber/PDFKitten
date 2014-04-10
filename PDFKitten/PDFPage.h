@@ -13,7 +13,7 @@
 
 - (void)setPage:(CGPDFPageRef)page;
 
-@property (nonatomic, retain) PDFScanner *scanner;
+@property (nonatomic, strong) PDFScanner *scanner;
 @property (nonatomic, copy) NSString *keyword;
 @property (nonatomic, copy) NSArray *selections;
 

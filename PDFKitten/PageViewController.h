@@ -2,9 +2,9 @@
 #import "PageView.h"
 
 @interface PageViewController : UIViewController <PageViewDelegate> {
-	IBOutlet PageView *pageView;
+	IBOutlet PageView *__weak pageView;
 }
 
-@property (nonatomic, readonly) PageView *pageView;
+@property (weak, nonatomic, readonly) PageView *pageView;
 
 @end

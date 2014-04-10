@@ -4,12 +4,11 @@
 
 - (id)initWithFont:(PDFFontCollection *)aFontCollection
 {
-	fontCollection = [aFontCollection retain];
+	fontCollection = aFontCollection;
 	UITableViewController *rvc = [[UITableViewController alloc] initWithStyle:UITableViewStyleGrouped];
 	rvc.tableView.delegate = self;
 	rvc.tableView.dataSource = self;
 	self = [super initWithRootViewController:rvc];
-	[rvc release];
 	self.navigationBarHidden = YES;
 	return self;
 }
@@ -35,7 +34,7 @@
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
 	if (!cell)
 	{
-		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:identifier] autorelease];
+		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:identifier];
 		cell.selectionStyle = UITableViewCellSelectionStyleNone;
 	}
 	
@@ -70,10 +69,5 @@
 }
 
 
-- (void)dealloc
-{
-	[fontCollection release];
-	[super dealloc];
-}
 
 @end

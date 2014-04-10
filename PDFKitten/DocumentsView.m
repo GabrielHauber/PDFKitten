@@ -66,7 +66,7 @@
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
 	if (!cell)
 	{
-		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:identifier] autorelease];
+		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:identifier];
 	}
 	NSString *title = [documents objectAtIndex:indexPath.row];
 	cell.textLabel.text = title;
@@ -88,12 +88,6 @@
 
 #pragma mark Memory Management
 
-- (void)dealloc
-{
-	[tableViewController release];
-	[documents release];
-	[super dealloc];
-}
 
 @synthesize delegate;
 @end

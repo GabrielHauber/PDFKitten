@@ -15,6 +15,6 @@
 - (PDFRenderingState *)popRenderingState;
 
 /* The rendering state currently on top of the stack */
-@property (nonatomic, readonly) PDFRenderingState *topRenderingState;
+@property (weak, nonatomic, readonly) PDFRenderingState *topRenderingState;
 
 @end

@@ -5,12 +5,12 @@
 + (PDFStringDetector *)detectorWithKeyword:(NSString *)keyword delegate:(id<PDFStringDetectorDelegate>)delegate {
 	PDFStringDetector *detector = [[PDFStringDetector alloc] initWithKeyword:keyword];
 	detector.delegate = delegate;
-	return [detector autorelease];
+	return detector;
 }
 
 - (id)initWithKeyword:(NSString *)string {
 	if (self = [super init]) {
-        keyword = [[string lowercaseString] retain];
+        keyword = [string lowercaseString];
         //self.unicodeContent = [NSMutableString string];
 	}
 
@@ -67,8 +67,7 @@
 }
 
 - (void)setKeyword:(NSString *)kword {
-    [keyword release];
-    keyword = [[kword lowercaseString] retain];
+    keyword = [kword lowercaseString];
 
     keywordPosition = 0;
 }
@@ -77,11 +76,6 @@
     keywordPosition = 0;
 }
 
-- (void)dealloc {
-    //[unicodeContent release];
-	[keyword release];
-	[super dealloc];
-}
 
 @synthesize delegate; //, unicodeContent;
 @end

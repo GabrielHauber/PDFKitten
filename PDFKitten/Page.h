@@ -13,7 +13,7 @@
 }
 - (UIView *)contentView;
 
-@property (nonatomic, retain) UIView *contentView;
+@property (nonatomic, strong) UIView *contentView;
 @property (nonatomic, assign) NSInteger pageNumber;
-@property (nonatomic, retain) UIView *detailedView;
+@property (nonatomic, strong) UIView *detailedView;
 @end

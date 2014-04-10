@@ -69,7 +69,7 @@ typedef const unsigned char CharacterCode;
 		font = [CIDType2Font alloc];
 	}
 	
-	[[font initWithFontDictionary:dictionary] autorelease];
+	[font initWithFontDictionary:dictionary];
 	return font;
 }
 
@@ -139,7 +139,6 @@ typedef const unsigned char CharacterCode;
 	if (!CGPDFDictionaryGetDictionary(dict, kFontDescriptorKey, &descriptor)) return;
 	PDFFontDescriptor *desc = [[PDFFontDescriptor alloc] initWithPDFDictionary:descriptor];
 	self.fontDescriptor = desc;
-	[desc release];
 }
 
 /* Populate the widths array given font dictionary */
@@ -155,7 +154,6 @@ typedef const unsigned char CharacterCode;
 	if (!CGPDFDictionaryGetStream(dict, kToUnicodeKey, &stream)) return;
 	PDFCMap *map = [[PDFCMap alloc] initWithPDFStream:stream];
 	self.toUnicode = map;
-	[map release];
 }
 
 #pragma mark Font Property Accessors
@@ -218,8 +216,8 @@ typedef const unsigned char CharacterCode;
 
 - (NSString *)cidWithPDFString:(CGPDFStringRef)pdfString {
     // Copy PDFString to NSString
-    NSString *string = (NSString *) CGPDFStringCopyTextString(pdfString);
-	return [string autorelease];
+    NSString *string = (NSString *) CFBridgingRelease(CGPDFStringCopyTextString(pdfString));
+	return string;
 }
 
 - (NSString *)unicodeWithPDFString:(CGPDFStringRef)pdfString
@@ -318,14 +316,6 @@ typedef const unsigned char CharacterCode;
 
 #pragma mark Memory Management
 
-- (void)dealloc
-{
-	[toUnicode release];
-	[widths release];
-	[fontDescriptor release];
-	[baseFont release];
-	[super dealloc];
-}
 
 @synthesize fontDescriptor, widths, toUnicode, widthsRange, baseFont, baseFontName, encoding, descendantFonts;
 @end

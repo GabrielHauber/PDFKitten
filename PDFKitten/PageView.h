@@ -38,7 +38,7 @@
 	NSMutableSet *recycledPages;
 	NSString *keyword;
     PDFPageDetailsView *detailedViewController;
-	IBOutlet id<PageViewDelegate> dataSource;
+	IBOutlet id<PageViewDelegate> __weak dataSource;
 }
 
 #pragma mark -
@@ -62,8 +62,8 @@
 @property (nonatomic, assign) NSInteger page;
 
 /* Data source for pages */
-@property (nonatomic, assign) id<PageViewDelegate> dataSource;
+@property (nonatomic, weak) id<PageViewDelegate> dataSource;
 
-@property (nonatomic, retain) NSString *keyword;
+@property (nonatomic, strong) NSString *keyword;
 
 @end

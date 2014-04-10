@@ -9,5 +9,5 @@
 	NSString *keyword;
 }
 
-@property (nonatomic, readonly) NSString *documentPath;
+@property (nonatomic, weak, readonly) NSString *documentPath;
 @end

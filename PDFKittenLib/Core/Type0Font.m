@@ -4,7 +4,7 @@
 
 
 @interface Type0Font ()
-@property (nonatomic, readonly) NSMutableArray *descendantFonts;
+@property (nonatomic, weak, readonly) NSMutableArray *descendantFonts;
 @end
 
 @implementation Type0Font
@@ -32,14 +32,12 @@
 					// Add descendant font of type 0
 					CIDType0Font *font = [[CIDType0Font alloc] initWithFontDictionary:fontDict];
 					if (font) [self.descendantFonts addObject:font];
-					[font release];
 				}
 				else if (strcmp(subtype, "CIDFontType2") == 0)
 				{
 					// Add descendant font of type 2
 					CIDType2Font *font = [[CIDType2Font alloc] initWithFontDictionary:fontDict];
 					if (font) [self.descendantFonts addObject:font];
-					[font release];
 				}
 			}
 		}
@@ -115,7 +113,7 @@
 	PDFFont *descendantFont = [self.descendantFonts lastObject];
     NSString *descendantResult = [descendantFont stringWithPDFString: pdfString];
     if (self.toUnicode) {
-        result = [[[NSMutableString alloc] initWithCapacity: [descendantResult length]] autorelease];
+        result = [[NSMutableString alloc] initWithCapacity: [descendantResult length]];
         for (int i = 0; i < [descendantResult length]; i++) {
             unichar characterCode = [descendantResult characterAtIndex:i];
             const NSUInteger uni = [self.toUnicode unicodeCharacter:characterCode];
@@ -148,10 +146,5 @@
 	return descendantFonts;
 }
 
-- (void)dealloc
-{
-	[descendantFonts release];
-	[super dealloc];
-}
 
 @end

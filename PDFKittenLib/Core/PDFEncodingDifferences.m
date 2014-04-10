@@ -64,13 +64,6 @@
     return self;
 }
 
-- (void) dealloc
-{
-    [_map release];
-    
-    [super dealloc];
-    
-}
 
 + (NSDictionary *) loadAdobeCharsetDict
 {
@@ -98,7 +91,7 @@
             NSString *winCode = fields[3];
             NSString *pdfCode = fields[4];
             
-            PDFAdobeCharsetEntry *entry = [[[PDFAdobeCharsetEntry alloc] init] autorelease];
+            PDFAdobeCharsetEntry *entry = [[PDFAdobeCharsetEntry alloc] init];
             entry.stdCode = [stdCode isEqualToString:@"-"] ? NSNotFound : [stdCode integerValue];
             entry.macCode = [macCode isEqualToString:@"-"] ? NSNotFound : [macCode integerValue];
             entry.winCode = [winCode isEqualToString:@"-"] ? NSNotFound : [winCode integerValue];
@@ -111,7 +104,7 @@
         }
     }
     
-    return [[md copy] autorelease];
+    return [md copy];
 }
 
 + (NSDictionary *) loadAdobeGlyphsDict
@@ -149,7 +142,7 @@
         }
     }
 
-    return [[md copy] autorelease];
+    return [md copy];
 }
 
 + (NSDictionary *) adobeCharset
@@ -157,7 +150,7 @@
     static NSDictionary *dict;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        dict = [[self loadAdobeCharsetDict] retain];
+        dict = [self loadAdobeCharsetDict];
     });
     return dict;
 }
@@ -167,7 +160,7 @@
     static NSDictionary *dict;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        dict = [[self loadAdobeGlyphsDict] retain];
+        dict = [self loadAdobeGlyphsDict];
     });
     return dict;
 }
@@ -246,7 +239,7 @@
                 (encoding == WinAnsiEncoding && val.winCode == unicode) ||
                 (encoding == PDFDocEncoding && val.pdfCode == unicode)) {
                 
-                name = [[key copy] autorelease];
+                name = [key copy];
                 *stop = YES;
             } 
         }];                
@@ -258,7 +251,7 @@
             
             if (val.unsignedIntegerValue == unicode) {
                
-                name = [[key copy] autorelease];
+                name = [key copy];
                 *stop = YES;
             }
         }];

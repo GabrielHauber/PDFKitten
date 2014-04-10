@@ -23,8 +23,8 @@
 
 - (NSUInteger)cidCharacter:(unichar)unicode;
 
-@property (nonatomic, retain) NSMutableArray *codeSpaceRanges;
-@property (nonatomic, retain) NSMutableDictionary *characterMappings;
-@property (nonatomic, retain) NSMutableDictionary *characterRangeMappings;
+@property (nonatomic, strong) NSMutableArray *codeSpaceRanges;
+@property (nonatomic, strong) NSMutableDictionary *characterMappings;
+@property (nonatomic, strong) NSMutableDictionary *characterRangeMappings;
 
 @end

@@ -105,7 +105,7 @@
     NSData *rawBytes = [NSData dataWithBytes:bytes length:length];
 	NSString *string = [[NSString alloc] initWithData:rawBytes encoding:nativeEncoding(self.encoding)];
                     
-	return [string autorelease];
+	return string;
 }
 
 /* Set encoding with name or dictionary */
@@ -218,11 +218,6 @@
     return result;
 }
 
-- (void) dealloc
-{
-    [encodingDifferences release];
-    [super dealloc];    
-}
 
 @synthesize encodingDifferences;
 

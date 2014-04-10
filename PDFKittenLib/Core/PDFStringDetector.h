@@ -12,7 +12,7 @@
 	NSString *keyword;
 	NSUInteger keywordPosition;
 	//NSMutableString *unicodeContent;
-	id<PDFStringDetectorDelegate> delegate;
+	id<PDFStringDetectorDelegate> __weak delegate;
 }
 
 + (PDFStringDetector *)detectorWithKeyword:(NSString *)keyword delegate:(id<PDFStringDetectorDelegate>)delegate;
@@ -22,6 +22,6 @@
 
 - (NSString *)appendString:(NSString *)inputString;
 
-@property (nonatomic, assign) id<PDFStringDetectorDelegate> delegate;
+@property (nonatomic, weak) id<PDFStringDetectorDelegate> delegate;
 //@property (nonatomic, retain) NSMutableString *unicodeContent;
 @end

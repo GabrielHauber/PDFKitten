@@ -4,7 +4,7 @@
 @implementation RenderingStateStack
 
 + (RenderingStateStack *)stack {
-	return [[[RenderingStateStack alloc] init] autorelease];
+	return [[RenderingStateStack alloc] init];
 }
 
 - (id)init
@@ -14,7 +14,6 @@
 		stack = [[NSMutableArray alloc] init];
 		PDFRenderingState *rootRenderingState = [[PDFRenderingState alloc] init];
 		[self pushRenderingState:rootRenderingState];
-		[rootRenderingState release];
 	}
 	return self;
 }
@@ -35,7 +34,6 @@
 - (PDFRenderingState *)popRenderingState
 {
 	PDFRenderingState *state = [stack lastObject];
-	[[stack retain] autorelease];
 	[stack removeLastObject];
 	return state;
 }
@@ -43,10 +41,5 @@
 
 #pragma mark - Memory Management
 
-- (void)dealloc
-{
-	[stack release];
-	[super dealloc];
-}
 
 @end

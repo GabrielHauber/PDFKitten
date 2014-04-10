@@ -46,7 +46,7 @@
 @property (nonatomic, assign) CGFloat horizontalScaling;
 
 /* Font and font size */
-@property (nonatomic, retain) PDFFont *font;
+@property (nonatomic, strong) PDFFont *font;
 @property (nonatomic, assign) CGFloat fontSize;
 
 - (CGFloat) widthOfSpace;

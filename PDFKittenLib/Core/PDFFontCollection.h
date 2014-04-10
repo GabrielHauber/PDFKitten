@@ -12,7 +12,7 @@
 /* Return the specified font */
 - (PDFFont *)fontNamed:(NSString *)fontName;
 
-@property (nonatomic, readonly) NSDictionary *fontsByName;
+@property (nonatomic, weak, readonly) NSDictionary *fontsByName;
 
 @property (nonatomic, readonly) NSArray *names;
 

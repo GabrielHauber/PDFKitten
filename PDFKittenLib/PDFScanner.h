@@ -9,8 +9,8 @@
 - (NSArray *)select:(NSString *)keyword;
 - (CGRect)boundingBox;
 
-@property (nonatomic, retain) PDFFontCollection *fontCollection;
-@property (nonatomic, retain) NSMutableString *content;
-@property (nonatomic, retain) NSMutableArray *selections;
+@property (nonatomic, strong) PDFFontCollection *fontCollection;
+@property (nonatomic, strong) NSMutableString *content;
+@property (nonatomic, strong) NSMutableArray *selections;
 
 @end

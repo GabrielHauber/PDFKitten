@@ -79,25 +79,25 @@ static inline BOOL knownEncoding(CharacterEncoding encoding)
 /* Return an equivalent string, replacing ligatures with individual characters */
 - (NSString *)stringByExpandingLigatures:(NSString *)string;
 
-@property (nonatomic, retain) PDFCMap *toUnicode;
-@property (nonatomic, retain) NSMutableDictionary *widths;
-@property (nonatomic, retain) PDFFontDescriptor *fontDescriptor;
+@property (nonatomic, strong) PDFCMap *toUnicode;
+@property (nonatomic, strong) NSMutableDictionary *widths;
+@property (nonatomic, strong) PDFFontDescriptor *fontDescriptor;
 @property (nonatomic, readonly) CGFloat minY;
 @property (nonatomic, readonly) CGFloat maxY;
-@property (nonatomic, readonly) NSDictionary *ligatures;
+@property (nonatomic, weak, readonly) NSDictionary *ligatures;
 @property (nonatomic, readonly) CGFloat widthOfSpace;
 @property (nonatomic, readonly) NSRange widthsRange;
 @property (nonatomic, assign) CharacterEncoding encoding;
-@property (nonatomic, readonly) NSArray *descendantFonts;
+@property (nonatomic, weak, readonly) NSArray *descendantFonts;
 
 /*!
  @property baseFont
  */
-@property (nonatomic, retain) NSString *baseFont;
+@property (nonatomic, strong) NSString *baseFont;
 
 /*!
  * The actual name of the base font, sans tag.
  @property baseFontName
  */
-@property (nonatomic, readonly) NSString *baseFontName;
+@property (weak, nonatomic, readonly) NSString *baseFontName;
 @end

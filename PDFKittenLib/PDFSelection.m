@@ -32,7 +32,7 @@ CGFloat horizontal(CGAffineTransform transform) {
 + (PDFSelection *)selectionWithState:(PDFRenderingState *)state {
 	PDFSelection *selection = [[PDFSelection alloc] init];
 	selection.initialState = state;
-	return [selection autorelease];
+	return selection;
 }
 
 - (CGAffineTransform)transform {
@@ -74,17 +74,6 @@ CGFloat horizontal(CGAffineTransform transform) {
 
 - (CGFloat)descent {
 	return MIN([self.initialState userSpaceDescent], [self.finalState userSpaceDescent]);
-}
-
-- (void)dealloc {
-    
-    if (_initialState)
-        [_initialState release], _initialState = nil;
-    
-    if (_finalState)
-        [_finalState release], _finalState = nil;
-	
-	[super dealloc];
 }
 
 @synthesize frame, transform;

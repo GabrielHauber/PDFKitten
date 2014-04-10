@@ -28,7 +28,7 @@
 /* Set encoding, given a font dictionary */
 - (void)setEncodingWithFontDictionary:(CGPDFDictionaryRef)dict;
 
-@property (nonatomic, readonly, retain) PDFEncodingDifferences *encodingDifferences;
+@property (nonatomic, readonly, strong) PDFEncodingDifferences *encodingDifferences;
 - (void) setupEncodingDifferencesWithEncodingDict:(CGPDFDictionaryRef)encodingDict;
 
 @end

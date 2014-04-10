@@ -23,14 +23,14 @@
 {
     if ([popoverController isEqual:libraryPopover])
     {
-        [libraryPopover release]; libraryPopover = nil;
+         libraryPopover = nil;
     }
 }
 
 - (void)didSelectDocument:(NSURL *)url
 {
 	[libraryPopover dismissPopoverAnimated:YES];
-	[libraryPopover release]; libraryPopover = nil;
+	 libraryPopover = nil;
 	
 	CGPDFDocumentRelease(document);
 	document = CGPDFDocumentCreateWithURL((CFURLRef)url);
@@ -42,11 +42,11 @@
     if (libraryPopover)
     {
         [libraryPopover dismissPopoverAnimated:NO];
-        [libraryPopover release]; libraryPopover = nil;
+         libraryPopover = nil;
         return;
     }
     
-    DocumentsView *docView = [[[DocumentsView alloc] init] autorelease];
+    DocumentsView *docView = [[DocumentsView alloc] init];
 	docView.delegate = self;
     libraryPopover = [[UIPopoverController alloc] initWithContentViewController:docView];
     libraryPopover.delegate = self;
@@ -58,7 +58,7 @@
 	[super viewDidAppear:animated];
 	
 	// Ask user to connect Dropbox account
-//	DBLoginController *loginController = [[DBLoginController new] autorelease];
+//	DBLoginController *loginController = [[DBLoginController new];
 //	[loginController presentFromController:self];
 }
 
@@ -82,7 +82,7 @@
 {
 	PDFFontCollection *collection = [self activeFontCollection];
 	PDFPageDetailsView *detailedView = [[PDFPageDetailsView alloc] initWithFont:collection];
-	return [detailedView autorelease];
+	return detailedView;
 }
 
 // TODO: Assign page to either the page or its content view, not both.
@@ -93,7 +93,7 @@
 	PDFPage *page = (PDFPage *) [aPageView dequeueRecycledPage];
 	if (!page)
 	{
-		page = [[[PDFPage alloc] initWithFrame:CGRectZero] autorelease];
+		page = [[PDFPage alloc] initWithFrame:CGRectZero];
 	}
     
 	page.pageNumber = pageNumber;
@@ -120,8 +120,7 @@
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)aSearchBar
 {
-	[keyword release];
-	keyword = [[aSearchBar text] retain];
+	keyword = [aSearchBar text];
 	[pageView setKeyword:keyword];
 	
 	[aSearchBar resignFirstResponder];
@@ -132,7 +131,6 @@
 - (void)dealloc
 {
     CGPDFDocumentRelease(document);
-    [super dealloc];
 }
 
 @end

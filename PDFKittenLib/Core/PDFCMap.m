@@ -23,11 +23,9 @@ static NSValue *rangeValue(NSUInteger from, NSUInteger to)
 
 - (id)initWithPDFStream:(CGPDFStreamRef)stream
 {
-	NSData *data = (NSData *) CGPDFStreamCopyData(stream, nil);
+	NSData *data = (NSData *) CFBridgingRelease(CGPDFStreamCopyData(stream, nil));
 	NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     id obj = [self initWithString:text];
-    [text release];
-    [data release];
     return obj;
 }
 
@@ -229,14 +227,6 @@ enum {
 	return characterRangeMappings;
 }
 
-- (void)dealloc
-{
-    [characterMappings release];
-    [characterRangeMappings release];
-	[codeSpaceRanges release];
-    //[_debugString release];
-	[super dealloc];
-}
 
 @synthesize codeSpaceRanges, characterMappings, characterRangeMappings;
 @end

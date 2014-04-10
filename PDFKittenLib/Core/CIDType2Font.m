@@ -18,7 +18,7 @@
                 CGPDFStreamRef stream = nil;
                 if (CGPDFObjectGetValue(streamOrName, kCGPDFObjectTypeStream, &stream))
                 {
-                    cidGidMap = (NSData *) CGPDFStreamCopyData(stream, nil);
+                    cidGidMap = (NSData *) CFBridgingRelease(CGPDFStreamCopyData(stream, nil));
                 }
             }
         }
@@ -34,11 +34,6 @@
     return (unichar) gid;
 }
 
-- (void)dealloc
-{
-    [cidGidMap release];
-    [super dealloc];
-}
 
 - (NSString *)stringWithPDFString:(CGPDFStringRef)pdfString
 {

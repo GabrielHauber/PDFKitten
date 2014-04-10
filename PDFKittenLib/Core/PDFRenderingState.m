@@ -130,11 +130,6 @@
 
 #pragma mark - Memory Management
 
-- (void)dealloc
-{
-	[font release];
-	[super dealloc];
-}
 
 @synthesize characterSpacing, wordSpacing, leadning, textRise, horizontalScaling, font, fontSize, lineMatrix, textMatrix, ctm;
 @end

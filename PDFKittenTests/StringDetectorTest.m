@@ -50,9 +50,5 @@
     matchCount++;
 }
 
-- (void)dealloc {
-    [kurtStory release];
-    [super dealloc];
-}
 
 @end

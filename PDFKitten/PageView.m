@@ -3,7 +3,7 @@
 #import "PDFPageDetailsView.h"
 
 @interface PageView ()
-@property (nonatomic, retain) PDFPageDetailsView *detailViewController;
+@property (nonatomic, strong) PDFPageDetailsView *detailViewController;
 @end
 
 @implementation PageView
@@ -95,7 +95,6 @@
 		UIView *p = [recycledPages anyObject];
 		if (p)
 		{
-			[[p retain] autorelease];
 			[recycledPages removeObject:p];
 		}
 		return p;
@@ -104,7 +103,7 @@
 
 - (Page *)pageAtIndex:(NSInteger)index
 {
-	NSSet *pages = [[visiblePages copy] autorelease];
+	NSSet *pages = [visiblePages copy];
 	for (Page *p in pages)
 	{
 		if (p.pageNumber == index)
@@ -173,8 +172,7 @@
 
 - (void)setKeyword:(NSString *)str
 {
-	[keyword release];
-	keyword = [str retain];
+	keyword = str;
 	for (PDFPage *p in visiblePages)
 	{
 		p.keyword = str;
@@ -220,14 +218,6 @@
 
 #pragma mark - Memory Management
 
-- (void)dealloc
-{
-    [detailedViewController release];
-	[keyword release];
-	[recycledPages release];
-	[visiblePages release];
-	[super dealloc];
-}
 
 @synthesize page, dataSource, keyword, detailViewController;
 @end
