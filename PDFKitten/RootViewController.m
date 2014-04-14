@@ -1,8 +1,8 @@
 #import "RootViewController.h"  
 #import "PDFPage.h"
 #import "DocumentsView.h"
-#import "PDFScanner.h"
-#import "PDFFontCollection.h"
+#import "PDFKPageScanner.h"
+#import "PDFKFontCollection.h"
 #import "PDFPageDetailsView.h"
 
 @implementation RootViewController
@@ -70,7 +70,7 @@
 	return CGPDFDocumentGetNumberOfPages(document);
 }
 
-- (PDFFontCollection *)activeFontCollection
+- (PDFKFontCollection *)activeFontCollection
 {
 	Page *page = [pageView pageAtIndex:pageView.page];
 	PDFContentView *pdfPage = (PDFContentView *) [(PDFPage *) page contentView];
@@ -80,7 +80,7 @@
 /* Return the detailed view corresponding to a page */
 - (PDFPageDetailsView *)pageView:(PageView *)aPageView detailedViewForPage:(NSInteger)page
 {
-	PDFFontCollection *collection = [self activeFontCollection];
+	PDFKFontCollection *collection = [self activeFontCollection];
 	PDFPageDetailsView *detailedView = [[PDFPageDetailsView alloc] initWithFont:collection];
 	return detailedView;
 }

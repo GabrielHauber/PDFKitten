@@ -1,10 +1,10 @@
 #import <UIKit/UIKit.h>
-#import "PDFFontCollection.h"
+#import "PDFKFontCollection.h"
 
 @interface PDFPageDetailsView : UINavigationController <UITableViewDelegate, UITableViewDataSource> {
-	PDFFontCollection *fontCollection;
+	PDFKFontCollection *fontCollection;
 }
 
-- (id)initWithFont:(PDFFontCollection *)fontCollection;
+- (id)initWithFont:(PDFKFontCollection *)fontCollection;
 
 @end

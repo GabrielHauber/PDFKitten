@@ -1,10 +1,10 @@
 #import <Foundation/Foundation.h>
 
-@class PDFStringDetector;
+@class PDFKStringDetector;
 
-@protocol PDFStringDetectorDelegate <NSObject>
+@protocol PDFKStringDetectorDelegate <NSObject>
 @optional
-- (void)detectorDidStartMatching:(PDFStringDetector *)stringDetector;
-- (void)detectorFoundString:(PDFStringDetector *)detector;
-- (void)detector:(PDFStringDetector *)detector didScanCharacter:(unichar)character;
+- (void)detectorDidStartMatching:(PDFKStringDetector *)stringDetector;
+- (void)detectorFoundString:(PDFKStringDetector *)detector;
+- (void)detector:(PDFKStringDetector *)detector didScanCharacter:(unichar)character;
 @end

@@ -1,11 +1,11 @@
 #import <XCTest/XCTest.h>
-#import "PDFStringDetector.h"
+#import "PDFKStringDetector.h"
 
-@interface StringDetectorTest : XCTestCase <PDFStringDetectorDelegate> {
+@interface StringDetectorTest : XCTestCase <PDFKStringDetectorDelegate> {
     int matchCount;
     int prefixCount;
     NSString *kurtStory;
-    PDFStringDetector *stringDetector;
+    PDFKStringDetector *stringDetector;
 }
 
 @end

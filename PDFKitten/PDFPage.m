@@ -1,5 +1,5 @@
 #import "PDFPage.h"
-#import "PDFSelection.h"
+#import "PDFKSelection.h"
 #import <QuartzCore/QuartzCore.h>
 
 @implementation PDFContentView
@@ -64,7 +64,7 @@
     {
         CGContextSetFillColorWithColor(ctx, [[UIColor yellowColor] CGColor]);
         CGContextSetBlendMode(ctx, kCGBlendModeMultiply);
-        for (PDFSelection *s in self.selections)
+        for (PDFKSelection *s in self.selections)
         {
             CGContextSaveGState(ctx);
             CGContextConcatCTM(ctx, s.transform);
@@ -90,7 +90,7 @@
 {
     CGPDFPageRelease(pdfPage);
 	pdfPage = CGPDFPageRetain(page);
-	self.scanner = [PDFScanner scannerWithPage:pdfPage];
+	self.scanner = [PDFKPageScanner scannerWithPage:pdfPage];
 }
 
 - (void)dealloc

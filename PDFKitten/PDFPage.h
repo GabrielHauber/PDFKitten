@@ -1,19 +1,19 @@
 #import "Page.h"
-#import "PDFScanner.h"
+#import "PDFKPageScanner.h"
 
 
 @interface PDFContentView : PageContentView {
 	CGPDFPageRef pdfPage;
     NSString *keyword;
 	NSArray *selections;
-	PDFScanner *scanner;
+	PDFKPageScanner *scanner;
 }
 
 #pragma mark
 
 - (void)setPage:(CGPDFPageRef)page;
 
-@property (nonatomic, strong) PDFScanner *scanner;
+@property (nonatomic, strong) PDFKPageScanner *scanner;
 @property (nonatomic, copy) NSString *keyword;
 @property (nonatomic, copy) NSArray *selections;
 

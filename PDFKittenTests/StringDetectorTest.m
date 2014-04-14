@@ -9,7 +9,7 @@
     prefixCount = 0;
     NSString *path = [[NSBundle bundleForClass:self.class] pathForResource:@"KurtStory" ofType:@"txt"];
     kurtStory = [[NSString alloc] initWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
-    stringDetector = [[PDFStringDetector alloc] initWithKeyword:@"Kurt"];
+    stringDetector = [[PDFKStringDetector alloc] initWithKeyword:@"Kurt"];
     [stringDetector setDelegate:self];
 }
 
@@ -42,11 +42,11 @@
     XCTAssertEqual(matchCount, 0, @"matches found");
 }
 
-- (void)detectorDidStartMatching:(PDFStringDetector *)stringDetector {
+- (void)detectorDidStartMatching:(PDFKStringDetector *)stringDetector {
     prefixCount++;
 }
 
-- (void)detectorFoundString:(PDFStringDetector *)detector {
+- (void)detectorFoundString:(PDFKStringDetector *)detector {
     matchCount++;
 }
 
