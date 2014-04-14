@@ -57,7 +57,7 @@
 	
 	CGRect visibleBounds = self.bounds;
 	int firstNeededPageIndex = floorf(CGRectGetMinX(visibleBounds) / CGRectGetWidth(visibleBounds));
-	int lastNeededPageIndex  = floorf((CGRectGetMaxX(visibleBounds)-1) / CGRectGetWidth(visibleBounds));
+	NSUInteger lastNeededPageIndex  = floorf((CGRectGetMaxX(visibleBounds)-1) / CGRectGetWidth(visibleBounds));
 	firstNeededPageIndex = MAX(firstNeededPageIndex, 0);
 	lastNeededPageIndex = MIN(numberOfPages-1, lastNeededPageIndex);
 	

@@ -17,7 +17,7 @@
     int position = 0;
     while (position < kurtStory.length) {
         NSRange range = NSMakeRange(position, MIN(INPUT_SEGMENT_LENGTH, kurtStory.length - position));
-        [stringDetector appendString:[kurtStory substringWithRange:range]];
+        [stringDetector appendUnicodeString:[kurtStory substringWithRange:range] forCharacter:0];
         position = NSMaxRange(range);
     }
 }
@@ -29,10 +29,10 @@
 }
 
 - (void)testIgnorePrefixes {
-    [stringDetector appendString:@"KuKuKu"];
+    [stringDetector appendUnicodeString:@"KuKuKu" forCharacter:0];
     XCTAssertEqual(prefixCount, 3, @"incorrect number of prefixes matched");
 
-    [stringDetector appendString:@"KuKurtKurt"];
+    [stringDetector appendUnicodeString:@"KuKurtKurt" forCharacter:0];
     XCTAssertEqual(matchCount, 2, @"incorrect number of matches");
 }
 

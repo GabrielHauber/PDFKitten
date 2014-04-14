@@ -55,7 +55,7 @@
 {
     while (cid <= maxCid)
     {
-        [self.widths setObject:[NSNumber numberWithInt:width] forKey:[NSNumber numberWithInt:cid++]];
+        self.widths[@(cid++)] = @(width);
     }
 }
 
@@ -67,14 +67,14 @@
     {
         if (CGPDFArrayGetInteger(array, index, &width))
         {
-            [self.widths setObject:[NSNumber numberWithInt:width] forKey:[NSNumber numberWithInt:base+index]];
+            self.widths[@(base+index)] = @(width);
         }
     }
 }
 
 - (CGFloat)widthOfCharacter:(unichar)characher withFontSize:(CGFloat)fontSize
 {
-	NSNumber *width = [self.widths objectForKey:[NSNumber numberWithInt:characher]];
+	NSNumber *width = self.widths[@(characher)];
 	if (!width)
 	{
 		return self.defaultWidth * fontSize;

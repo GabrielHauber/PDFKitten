@@ -54,7 +54,7 @@
 	CGContextScaleCTM(ctx, 1.0, -1.0);
 
 	// Transform coordinate system to match PDF
-	NSInteger rotationAngle = CGPDFPageGetRotationAngle(pdfPage);
+	int rotationAngle = CGPDFPageGetRotationAngle(pdfPage);
 	CGAffineTransform transform = CGPDFPageGetDrawingTransform(pdfPage, kCGPDFCropBox, layer.bounds, -rotationAngle, YES);
 	CGContextConcatCTM(ctx, transform);
 

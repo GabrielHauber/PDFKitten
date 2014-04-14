@@ -5,7 +5,7 @@
 - (NSString *)stringWithPDFString:(CGPDFStringRef)pdfString
 {
 	unichar *bytes = (unichar *) CGPDFStringGetBytePtr(pdfString);
-	int length = CGPDFStringGetLength(pdfString) / sizeof(unichar);
+	size_t length = CGPDFStringGetLength(pdfString) / sizeof(unichar);
 	int magicalOffset = ([self isIdentity] ? 0 : 30);
 
 	NSMutableString *unicodeString = [NSMutableString string];

@@ -333,7 +333,7 @@ static void setFont(CGPDFScannerRef pdfScanner, void *info) {
 	
 	PDFScanner *scanner = (__bridge PDFScanner *) info;
 	PDFRenderingState *state = scanner.renderingState;
-	PDFFont *font = [scanner.fontCollection fontNamed:[NSString stringWithUTF8String:fontName]];
+	PDFFont *font = [scanner.fontCollection fontNamed:@(fontName)];
 	[state setFont:font];
 	[state setFontSize:fontSize];
 }

@@ -42,7 +42,7 @@ static NSDictionary *charactersByName = nil;
 				NSString *name;
 				[scanner scanInt:&code];
 				[scanner scanUpToCharactersFromSet:delimiterSet intoString:&name];
-				if (name) [names setObject:name forKey:[NSNumber numberWithInt:code]];
+				if (name) names[@(code)] = name;
 			}
 		}
 	}
@@ -56,38 +56,38 @@ static NSDictionary *charactersByName = nil;
 		NSMutableDictionary *dict = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
 									 
 
-                                     [NSNumber numberWithInt:0xfb00], @"/ff",
-                                     [NSNumber numberWithInt:0xfb01], @"/fi",
-									 [NSNumber numberWithInt:0xfb02], @"/fl",
-									 [NSNumber numberWithInt:0xfb04], @"/ffl",
+                                     @0xfb00, @"/ff",
+                                     @0xfb01, @"/fi",
+									 @0xfb02, @"/fl",
+									 @0xfb04, @"/ffl",
 									 
-									 [NSNumber numberWithInt:0x0054], @"/T",
-									 [NSNumber numberWithInt:0x0061], @"/a",
-									 [NSNumber numberWithInt:0x0063], @"/c",
-									 [NSNumber numberWithInt:0x0065], @"/e",
-									 [NSNumber numberWithInt:0x0068], @"/h",
-									 [NSNumber numberWithInt:0x0069], @"/i",
-									 [NSNumber numberWithInt:0x006c], @"/l",
-									 [NSNumber numberWithInt:0x006e], @"/n",
-									 [NSNumber numberWithInt:0x006f], @"/o",
-									 [NSNumber numberWithInt:0x0031], @"/one",
-									 [NSNumber numberWithInt:0x002e], @"/period",
-									 [NSNumber numberWithInt:0x0073], @"/s",
-									 [NSNumber numberWithInt:0x0074], @"/t",
-									 [NSNumber numberWithInt:0x0075], @"/u",
-									 [NSNumber numberWithInt:0x0076], @"/v",
-									 [NSNumber numberWithInt:0x0079], @"/y",
+									 @0x0054, @"/T",
+									 @0x0061, @"/a",
+									 @0x0063, @"/c",
+									 @0x0065, @"/e",
+									 @0x0068, @"/h",
+									 @0x0069, @"/i",
+									 @0x006c, @"/l",
+									 @0x006e, @"/n",
+									 @0x006f, @"/o",
+									 @0x0031, @"/one",
+									 @0x002e, @"/period",
+									 @0x0073, @"/s",
+									 @0x0074, @"/t",
+									 @0x0075, @"/u",
+									 @0x0076, @"/v",
+									 @0x0079, @"/y",
 									 nil];
 		
 		charactersByName = dict;
 	}
 	
-	return [[charactersByName objectForKey:name] intValue];
+	return [charactersByName[name] intValue];
 }
 
 - (NSString *)stringWithCode:(int)code
 {
-	NSString *characterName = [names objectForKey:[NSNumber numberWithInt:code]];
+	NSString *characterName = names[@(code)];
 	unichar unicodeValue = [FontFile characterByName:characterName];
     if (!unicodeValue) unicodeValue = code;
 	return [NSString stringWithFormat:@"%C", unicodeValue];

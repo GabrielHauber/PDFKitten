@@ -25,7 +25,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-	return [[fontCollection names] objectAtIndex:section];
+	return [fontCollection names][section];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -39,7 +39,7 @@
 	}
 	
 	
-	NSString *name = [[fontCollection names] objectAtIndex:indexPath.section];
+	NSString *name = [fontCollection names][indexPath.section];
 	PDFFont *font = [fontCollection fontNamed:name];
 	cell.accessoryType = UITableViewCellAccessoryNone;
 	
@@ -53,13 +53,13 @@
 		{
 			NSRange range = font.widthsRange;
 			cell.textLabel.text = @"Widths";
-			cell.detailTextLabel.text = [NSString stringWithFormat:@"%d (%d - %d)", [[font widths] count], range.location, NSMaxRange(range)];
+			cell.detailTextLabel.text = [NSString stringWithFormat:@"%d (%d - %d)", (int)[[font widths] count], (int)range.location, (int)NSMaxRange(range)];
 			cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
 			break;
 		}
 		case 2:
 			cell.textLabel.text = @"Flags";
-			cell.detailTextLabel.text = [NSString stringWithFormat:@"%d",[[font fontDescriptor] flags]];
+			cell.detailTextLabel.text = [NSString stringWithFormat:@"%d", (int)[[font fontDescriptor] flags]];
 			break;
 		default:
 			break;

@@ -29,9 +29,9 @@
 	{
 		CGPDFReal width;
 		if (!CGPDFArrayGetNumber(array, i, &width)) continue;
-		NSNumber *key = [NSNumber numberWithInt:firstChar+i];
-		NSNumber *value = [NSNumber numberWithFloat:width];
-		[widthsDict setObject:value forKey:key];
+		NSNumber *key = @(firstChar+i);
+		NSNumber *value = @(width);
+		widthsDict[key] = value;
 	}
 	self.widths = widthsDict;
 }

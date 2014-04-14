@@ -75,7 +75,7 @@ const char *kFontFileKey = "FontFile";
         self.verticalStemWidth = stemV;
         self.horizontalStemWidth = stemH;
         self.italicAngle = italicAngleValue;
-        self.fontName = [NSString stringWithUTF8String:fontNameString];
+        self.fontName = @(fontNameString);
 
 		if (CGPDFArrayGetCount(bboxValue) == 4)
 		{

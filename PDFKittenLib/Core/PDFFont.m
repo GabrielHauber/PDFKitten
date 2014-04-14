@@ -88,7 +88,7 @@ const char *kTypeKey = "Type";
 		const char *fontName = nil;
 		if (CGPDFDictionaryGetName(dict, kBaseFontKey, &fontName))
 		{
-			self.baseFont = [NSString stringWithCString:fontName encoding:NSUTF8StringEncoding];
+			self.baseFont = @(fontName);
 		}
 		
 		// NOTE: Any furhter initialization is performed by the appropriate subclass
@@ -110,7 +110,7 @@ const char *kTypeKey = "Type";
 		// TODO: Also get differences from font encoding dictionary
 	}
 
-	[self setEncodingNamed:[NSString stringWithCString:encodingName encoding:NSUTF8StringEncoding]];
+	[self setEncodingNamed:@(encodingName)];
 }
 
 - (void)setEncodingNamed:(NSString *)encodingName
@@ -215,8 +215,8 @@ const char *kTypeKey = "Type";
 /* Width of the given character (CID) scaled to fontsize */
 - (CGFloat)widthOfCharacter:(unichar)character withFontSize:(CGFloat)fontSize
 {
-	NSNumber *key = [NSNumber numberWithInt:character];
-	NSNumber *width = [self.widths objectForKey:key];
+	NSNumber *key = @(character);
+	NSNumber *width = self.widths[key];
 	return [width floatValue] * fontSize;
 }
 
@@ -226,12 +226,11 @@ const char *kTypeKey = "Type";
 	if (!ligatures)
 	{
 		// Mapping ligature Unicode character values to strings
-		ligatures = [NSDictionary dictionaryWithObjectsAndKeys:
-					 @"ff", [NSString stringWithFormat:@"%C", (unichar) 0xfb00],
-					 @"fi", [NSString stringWithFormat:@"%C", (unichar) 0xfb01],
-					 @"fl", [NSString stringWithFormat:@"%C", (unichar) 0xfb02],
-					 @"ae", [NSString stringWithFormat:@"%C", (unichar) 0x00e6],
-					 @"oe", [NSString stringWithFormat:@"%C", (unichar) 0x0153], nil];
+		ligatures = @{[NSString stringWithFormat:@"%C", (unichar) 0xfb00]: @"ff",
+					 [NSString stringWithFormat:@"%C", (unichar) 0xfb01]: @"fi",
+					 [NSString stringWithFormat:@"%C", (unichar) 0xfb02]: @"fl",
+					 [NSString stringWithFormat:@"%C", (unichar) 0x00e6]: @"ae",
+					 [NSString stringWithFormat:@"%C", (unichar) 0x0153]: @"oe"};
 	}
 
 	return ligatures;
@@ -248,10 +247,10 @@ const char *kTypeKey = "Type";
 	NSMutableString *string = [NSMutableString string];
 	[string appendFormat:@"%@ {\n", self.baseFont];
 	[string appendFormat:@"\ttype = %@\n", [self classForKeyedArchiver]];
-	[string appendFormat:@"\tcharacter widths = %d\n", [self.widths count]];
+	[string appendFormat:@"\tcharacter widths = %d\n", (int)[self.widths count]];
 	[string appendFormat:@"\ttoUnicode = %d\n", (self.toUnicode != nil)];
 	if (self.descendantFonts) {
-		[string appendFormat:@"\tdescendant fonts = %d\n", [self.descendantFonts count]];
+		[string appendFormat:@"\tdescendant fonts = %d\n", (int)[self.descendantFonts count]];
 	}
 	[string appendFormat:@"}\n"];
 	return string;
@@ -263,7 +262,7 @@ const char *kTypeKey = "Type";
 	NSString *replacement = nil;
 	for (NSString *ligature in self.ligatures)
 	{
-		replacement = [self.ligatures objectForKey:ligature];
+		replacement = self.ligatures[ligature];
 		if (!replacement) continue;
 		string = [string stringByReplacingOccurrencesOfString:ligature withString:replacement];
 	}

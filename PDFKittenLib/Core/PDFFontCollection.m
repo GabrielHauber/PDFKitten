@@ -11,8 +11,8 @@ void didScanFont(const char *key, CGPDFObjectRef object, void *collection)
 	if (!CGPDFObjectGetValue(object, kCGPDFObjectTypeDictionary, &dict)) return;
 	PDFFont *font = [PDFFont fontWithDictionary:dict];
 	if (!font) return;
-	NSString *name = [NSString stringWithUTF8String:key];
-	[(__bridge NSMutableDictionary *)collection setObject:font forKey:name];
+	NSString *name = @(key);
+	((__bridge NSMutableDictionary *)collection)[name] = font;
 }
 
 /* Initialize with a font collection dictionary */
@@ -44,7 +44,7 @@ void didScanFont(const char *key, CGPDFObjectRef object, void *collection)
 /* Return the specified font */
 - (PDFFont *)fontNamed:(NSString *)fontName
 {
-	return [fonts objectForKey:fontName];
+	return fonts[fontName];
 }
 
 #pragma mark - Memory Management

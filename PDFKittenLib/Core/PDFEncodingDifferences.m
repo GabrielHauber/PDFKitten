@@ -53,7 +53,7 @@
                     if (CGPDFObjectGetValue(pdfObject, kCGPDFObjectTypeName, &name) &&
                         (0 != strcmp(name,  ".notdef"))) {
                         
-                        _map[@(cid)] = [NSString stringWithUTF8String:name];
+                        _map[@(cid)] = @(name);
                     }
                     
                     cid++;
@@ -130,7 +130,7 @@
             NSString *name = fields[0];
             NSString *uniCode = fields[1];
             
-            NSUInteger value;
+            unsigned value;
             NSScanner* scanner = [NSScanner scannerWithString:uniCode];
             if ([scanner scanHexInt:&value]) {
                 md[name] = @(value);

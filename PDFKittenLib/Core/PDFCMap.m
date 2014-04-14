@@ -112,7 +112,7 @@ static NSValue *rangeValue(NSUInteger from, NSUInteger to)
 		NSRange range = [rangeValue rangeValue];
 		if (NSLocationInRange(cid, range))
 		{
-			NSData *dataValue = [self.characterRangeMappings objectForKey:rangeValue];
+			NSData *dataValue = self.characterRangeMappings[rangeValue];
             
             return [dataValue dataByAddingToLastByte:cid - range.location];
 		}
