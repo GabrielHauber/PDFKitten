@@ -4,7 +4,7 @@
 	NSData *data;
 	NSString *text;
 	size_t asciiTextLength;
-	NSMutableDictionary *__weak names;
+	NSMutableDictionary *names;
 }
 
 + (unichar)characterByName:(NSString *)name;
@@ -17,5 +17,5 @@
 
 @property (nonatomic, readonly) NSString *text;
 @property (nonatomic, readonly) NSData *data;
-@property (nonatomic, weak, readonly) NSDictionary *names;
+@property (nonatomic, readonly) NSDictionary *names;
 @end

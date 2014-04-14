@@ -1,5 +1,65 @@
 #import "PDFCMap.h"
 
+@implementation NSString (HexData)
+
+- (NSData *)hexData {
+    
+	char buf[3];
+	buf[2] = '\0';
+
+	unsigned char *bytes = malloc([self length] / 2);
+	unsigned char *bp = bytes;
+    
+    NSUInteger length = [self length];
+    if (length % 2 != 0)
+        length--;
+    
+	for (CFIndex i = 0; i < length; i += 2) {
+		buf[0] = [self characterAtIndex:i];
+		buf[1] = [self characterAtIndex:i+1];
+		char *b2 = NULL;
+		*bp++ = strtol(buf, &b2, 16);
+		if (buf + 2 != b2)
+            break;
+	}
+	
+	return [NSData dataWithBytesNoCopy:bytes length:length / 2 freeWhenDone:YES];
+}
+
+@end
+
+
+@implementation NSData (NumericGetters)
+
+- (NSUInteger)unsignedIntegerValue {
+
+    NSUInteger result = 0;
+    const unsigned char *bytes = self.bytes;
+    
+    for (size_t i = 0; i < self.length; i++) {
+        result = result << 8;
+        result |= bytes[i];
+    }
+    
+    return result;
+}
+
+- (instancetype)dataByAddingToLastByte:(unichar)value {
+    
+    NSMutableData *mutableData = [self mutableCopy];
+    
+    const unsigned char *bytes = self.bytes;
+    
+    const char lastByte = bytes[self.length - 1] + value;
+    
+    [mutableData replaceBytesInRange:NSMakeRange(self.length - 1, 1) withBytes:&lastByte];
+    
+    return mutableData;
+}
+
+@end
+
+
 static NSValue *rangeValue(NSUInteger from, NSUInteger to)
 {
 	return [NSValue valueWithRange:NSMakeRange(from, to - from + 1)];
@@ -14,6 +74,7 @@ static NSValue *rangeValue(NSUInteger from, NSUInteger to)
 {
 	if ((self = [super init]))
 	{
+        _codeSpaceRangeMinSize = NSNotFound;
         [self parse:string];
         // _debugString = [string copy];
         
@@ -29,74 +90,73 @@ static NSValue *rangeValue(NSUInteger from, NSUInteger to)
     return obj;
 }
 
-- (BOOL)isInCodeSpaceRange:(unichar)cid
+#pragma mark - Public methods
+
+- (BOOL)isInCodeSpaceRange:(NSUInteger)cid
 {
 	for (NSValue *rangeValue in self.codeSpaceRanges)
 	{
 		NSRange range = [rangeValue rangeValue];
-		if (cid >= range.location && cid <= NSMaxRange(range))
-		{
+		if (NSLocationInRange(cid, range))
 			return YES;
-		}
 	}
+    
 	return NO;
 }
 
-#pragma mark - Public methods
-
-/**!
- * Returns the unicode value mapped by the given character ID
- */
-- (NSUInteger)unicodeCharacter:(unichar)cid
+- (NSData *)unicodeMappingData:(NSUInteger)cid
 {
-	if (![self isInCodeSpaceRange:cid])
-        return NSNotFound;
-
 	NSArray	*mappedRanges = [self.characterRangeMappings allKeys];
 	for (NSValue *rangeValue in mappedRanges)
 	{
 		NSRange range = [rangeValue rangeValue];
-		if (cid >= range.location && cid <= NSMaxRange(range))
+		if (NSLocationInRange(cid, range))
 		{
-			NSNumber *offsetValue = [self.characterRangeMappings objectForKey:rangeValue];
-            return [offsetValue unsignedIntegerValue] + cid - range.location;
+			NSData *dataValue = [self.characterRangeMappings objectForKey:rangeValue];
+            
+            return [dataValue dataByAddingToLastByte:cid - range.location];
 		}
 	}
 
-    NSNumber *result = self.characterMappings[@((NSUInteger)cid)];
-    if (result) {
-        return [result unsignedIntegerValue];
-    }
-
-    return NSNotFound;
+    return self.characterMappings[@(cid)];
 }
 
-- (NSUInteger)cidCharacter:(unichar)unicode {
-    __block NSUInteger result = NSNotFound;
+- (NSString *)unicodeMappingString:(NSUInteger)cid {
+    NSData *data = [self unicodeMappingData:cid];
+    
+    if (data)
+        return [[NSString alloc] initWithData:data encoding:NSUTF16BigEndianStringEncoding];
+    
+    return nil;
+}
 
-    [self.characterRangeMappings enumerateKeysAndObjectsUsingBlock:^(NSValue *rangeValue, NSNumber *offset, BOOL *stop) {
-        const NSRange range = [rangeValue rangeValue];
-        //range.location += [offset intValue];
-        const NSUInteger firstUniChar = [offset unsignedIntegerValue];
-        //if (unicode >= range.location && unicode <= NSMaxRange(range)) {
-        if (unicode >= firstUniChar && unicode <= (firstUniChar + range.length)) {
-            //result = unicode - [offset intValue];
-            result = range.location + unicode - firstUniChar;
-            *stop = YES;
-        }
-    }];
-    if (result != NSNotFound)
-        return result;
-
-    NSArray *keys = [self.characterMappings allKeysForObject:[NSNumber numberWithInt:unicode]];
-    if (keys.count) {
-        if (keys.count > 1) {
-            NSLog(@"more keys for character %C keys = %@", unicode, keys);
-        }
-        return [[keys lastObject]intValue];
-    } else {
-        return NSNotFound;
+- (void)enumeratePDFStringCharacters:(CGPDFStringRef)pdfString usingBlock:(void (^)(NSUInteger, NSString *))block {
+    
+    size_t stringLength = CGPDFStringGetLength(pdfString);
+    const unsigned char *bytes = CGPDFStringGetBytePtr(pdfString);
+    
+    int i = 0;
+    NSUInteger characterCode = 0;
+    NSUInteger charSize = 0;
+    
+    while (i < stringLength) {
+        
+        characterCode = characterCode << 8;
+        characterCode |= bytes[i++];
+        
+        charSize++;
+        
+        if (charSize < _codeSpaceRangeMinSize || (![self isInCodeSpaceRange:characterCode] && charSize <= _codeSpaceRangeMaxSize))
+            continue;
+        
+        NSString *unicode = [self unicodeMappingString:characterCode];
+        
+        block(characterCode, unicode);
+        
+        charSize = 0;
+        characterCode = 0;
     }
+
 }
 
 enum {
@@ -107,7 +167,7 @@ enum {
     ParseExtModeBFChar,
 };
 
-- (NSArray *) exractNumbersFromLine:(NSString *) line
+- (NSArray *)exractDataValuesFromLine:(NSString *) line
 {
     NSMutableArray *ma = [NSMutableArray array];
     
@@ -122,16 +182,7 @@ enum {
             if (![scanner scanString:@">" intoString:nil])
                 break;
             
-            if (s.length) {
-                
-                s = [s stringByReplacingOccurrencesOfString:@" " withString:@""];
-                NSScanner *hexScaner = [NSScanner scannerWithString:s];
-                
-                NSUInteger value;
-                if (![hexScaner scanHexInt:&value])
-                    break;
-                [ma addObject:@(value)];                
-            }
+            [ma addObject:[s hexData]];
         }
         
         [scanner scanUpToString:@"<" intoString:nil];
@@ -152,24 +203,30 @@ enum {
             if ([line rangeOfString:@"begincodespacerange"].location != NSNotFound) {
                 
                 mode = ParseExtModeCodeSpaceRange;
+                continue;
                 
             } else if ([line rangeOfString:@"beginbfrange"].location != NSNotFound) {
                 
                 mode = ParseExtModeBFRange;
+                continue;
                 
             } else if ([line rangeOfString:@"beginbfchar"].location != NSNotFound) {
                 
                 mode = ParseExtModeBFChar;
-            }            
+                continue;
+            }
         }
         
         if (mode == ParseExtModeCodeSpaceRange) {
             
-            NSArray *numbers = [self exractNumbersFromLine:line];
-            if (numbers.count == 2) {
+            NSArray *dataValues = [self exractDataValuesFromLine:line];
+            if (dataValues.count == 2) {
                 
-                NSValue *range = rangeValue([numbers[0] integerValue], [numbers[1] integerValue]);
+                NSValue *range = rangeValue([dataValues[0] unsignedIntegerValue], [dataValues[1] unsignedIntegerValue]);
                 [self.codeSpaceRanges addObject:range];
+                
+                _codeSpaceRangeMinSize = MIN(_codeSpaceRangeMinSize, [dataValues[0] length]);
+                _codeSpaceRangeMaxSize = MAX(_codeSpaceRangeMaxSize, [dataValues[1] length]);
             }
             
             if ([line rangeOfString:@"endcodespacerange"].location != NSNotFound) {                
@@ -181,11 +238,11 @@ enum {
             // TODO: arrays like <005F> <0061> [<00660066> <00660069> <00660066006C>]
             // TODO: unicode32 like <D840DC3E>
             
-            NSArray *numbers = [self exractNumbersFromLine:line];
-            if (numbers.count == 3) {
+            NSArray *dataValues = [self exractDataValuesFromLine:line];
+            if (dataValues.count == 3) {
                 
-                NSValue *range = rangeValue([numbers[0] integerValue], [numbers[1] integerValue]);                
-                self.characterRangeMappings[range] = numbers[2];
+                NSValue *range = rangeValue([dataValues[0] unsignedIntegerValue], [dataValues[1] unsignedIntegerValue]);
+                self.characterRangeMappings[range] = dataValues[2];
             }
             
             if ([line rangeOfString:@"endbfrange"].location != NSNotFound) {
@@ -194,9 +251,9 @@ enum {
             
         } else  if (mode == ParseExtModeBFChar) {
             
-            NSArray *numbers = [self exractNumbersFromLine:line];
-            if (numbers.count == 2) {
-                self.characterMappings[numbers[0]] = numbers[1];
+            NSArray *dataValues = [self exractDataValuesFromLine:line];
+            if (dataValues.count == 2) {
+                self.characterMappings[@([dataValues[0] unsignedIntegerValue])] = dataValues[1];
             }
             
             if ([line rangeOfString:@"endbfchar"].location != NSNotFound) {

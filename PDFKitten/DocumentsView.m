@@ -79,15 +79,13 @@
 	NSString *title = [documents objectAtIndex:indexPath.row];
 	NSURL *url = [urlsByName objectForKey:title];
 
-	if ([delegate respondsToSelector:@selector(didSelectDocument:)])
+	if ([_documentsDelegate respondsToSelector:@selector(didSelectDocument:)])
 	{
-		[delegate performSelector:@selector(didSelectDocument:) withObject:url];
+		[_documentsDelegate performSelector:@selector(didSelectDocument:) withObject:url];
 	}
 }
 
 
 #pragma mark Memory Management
 
-
-@synthesize delegate;
 @end

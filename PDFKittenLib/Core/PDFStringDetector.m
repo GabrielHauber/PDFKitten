@@ -17,15 +17,11 @@
 	return self;
 }
 
-- (NSString *)appendString:(NSString *)inputString {
+- (NSString *)appendUnicodeString:(NSString *)inputString forCharacter:(NSUInteger)cid {
 	NSString *lowercaseString = [inputString lowercaseString];
     int position = 0;
-    if (lowercaseString) {
-        //[unicodeContent appendString:lowercaseString];
-    }
 
     while (position < inputString.length) {
-		unichar inputCharacter = [inputString characterAtIndex:position];
 		unichar actualCharacter = [lowercaseString characterAtIndex:position++];
         unichar expectedCharacter = [keyword characterAtIndex:keywordPosition];
 
@@ -34,8 +30,8 @@
                 // Read character again
                 position--;
             }
-			else if ([delegate respondsToSelector:@selector(detector:didScanCharacter:)]) {
-				[delegate detector:self didScanCharacter:inputCharacter];
+			else if ([_delegate respondsToSelector:@selector(detector:didScanCharacter:)]) {
+				[_delegate detector:self didScanCharacter:cid];
 			}
 
             // Reset keyword position
@@ -43,12 +39,12 @@
             continue;
         }
 
-        if (keywordPosition == 0 && [delegate respondsToSelector:@selector(detectorDidStartMatching:)]) {
-            [delegate detectorDidStartMatching:self];
+        if (keywordPosition == 0 && [_delegate respondsToSelector:@selector(detectorDidStartMatching:)]) {
+            [_delegate detectorDidStartMatching:self];
         }
 
-        if ([delegate respondsToSelector:@selector(detector:didScanCharacter:)]) {
-            [delegate detector:self didScanCharacter:inputCharacter];
+        if ([_delegate respondsToSelector:@selector(detector:didScanCharacter:)]) {
+            [_delegate detector:self didScanCharacter:cid];
         }
 
         if (++keywordPosition < keyword.length) {
@@ -58,8 +54,8 @@
 
         // Reset keyword position
         keywordPosition = 0;
-        if ([delegate respondsToSelector:@selector(detectorFoundString:)]) {
-            [delegate detectorFoundString:self];
+        if ([_delegate respondsToSelector:@selector(detectorFoundString:)]) {
+            [_delegate detectorFoundString:self];
         }
     }
 
@@ -76,6 +72,4 @@
     keywordPosition = 0;
 }
 
-
-@synthesize delegate; //, unicodeContent;
 @end

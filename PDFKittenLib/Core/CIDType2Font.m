@@ -38,49 +38,17 @@
 - (NSString *)stringWithPDFString:(CGPDFStringRef)pdfString
 {
 	size_t length = CGPDFStringGetLength(pdfString);
-	const unsigned char *cid = CGPDFStringGetBytePtr(pdfString);
+	const unsigned char *bytes = CGPDFStringGetBytePtr(pdfString);
+    
     NSMutableString *result = [NSMutableString string];
-    NSData *data = [NSData dataWithBytes:cid length:length];
-    NSLog(@"%@", data);
+
 	for (int i = 0; i < length; i+=2) {
-		unsigned char unicodeValue1 = cid[i];
-		unsigned char unicodeValue2 = cid[i+1];
+		unsigned char unicodeValue1 = bytes[i];
+		unsigned char unicodeValue2 = bytes[i+1];
         unichar unicodeValue = (unicodeValue1 << 8) + unicodeValue2;
         [result appendFormat:@"%C", unicodeValue];
 	}
     return result;
 }
-
-/*
-
-- (NSString *)stringWithPDFString:(CGPDFStringRef)pdfString
-{
-	if (self.identity)
-	{
-		// Use 2-byte CIDToGID identity mapping
-		size_t length = CGPDFStringGetLength(pdfString);
-		const unsigned char *cid = CGPDFStringGetBytePtr(pdfString);
-
-		
-		NSData *data = [NSData dataWithBytes:cid length:length];
-		NSLog(@"%@", data);
-		
-		for (int i = 0; i < length; i+=2)
-		{
-			unichar unicodeValue = cid[i] << 8 | cid[i+1];
-//			unichar unicodeValue = 0x4ea4;  
-			NSLog(@"%C %x", unicodeValue, unicodeValue);
-		}
-		
-	}
-	else
-	{
-		
-	}
-	
-	
-	return @"";
-}
-*/
 
 @end

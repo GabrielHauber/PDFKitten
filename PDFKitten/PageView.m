@@ -51,7 +51,7 @@
 
 - (void)layoutSubviews
 {
-	numberOfPages = [dataSource numberOfPagesInPageView:self];
+	numberOfPages = [_dataSource numberOfPagesInPageView:self];
 
 	self.contentSize = CGSizeMake(CGRectGetWidth(self.bounds) * numberOfPages, CGRectGetWidth(self.bounds));
 	
@@ -75,7 +75,7 @@
 	{
         if ([self isShowingPageForIndex:i]) continue;
 		
-		Page *aPage = [dataSource pageView:self viewForPage:i];
+		Page *aPage = [_dataSource pageView:self viewForPage:i];
 		CGRect rect = self.frame;
 		rect.origin.y = 0;
 		rect.origin.x = CGRectGetWidth(rect) * i;
@@ -124,18 +124,18 @@
 /* Animated scrolling did stop */
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
-	if ([dataSource respondsToSelector:@selector(pageView:didScrollToPage:)])
+	if ([_dataSource respondsToSelector:@selector(pageView:didScrollToPage:)])
 	{
-		[dataSource pageView:self didScrollToPage:self.page];
+		[_dataSource pageView:self didScrollToPage:self.page];
 	}
 }
 
 /* User touch scrolling did stop */
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-	if ([dataSource respondsToSelector:@selector(pageView:didScrollToPage:)])
+	if ([_dataSource respondsToSelector:@selector(pageView:didScrollToPage:)])
 	{
-		[dataSource pageView:self didScrollToPage:self.page];
+		[_dataSource pageView:self didScrollToPage:self.page];
 	}
 }
 
@@ -150,9 +150,9 @@
 	[self scrollRectToVisible:rect animated:YES];
 	if (!animated)
 	{
-		if ([dataSource respondsToSelector:@selector(pageView:didScrollToPage:)])
+		if ([_dataSource respondsToSelector:@selector(pageView:didScrollToPage:)])
 		{
-			[dataSource pageView:self didScrollToPage:self.page];
+			[_dataSource pageView:self didScrollToPage:self.page];
 		}
 	}
 }
@@ -172,7 +172,7 @@
 
 - (void)setKeyword:(NSString *)str
 {
-	keyword = str;
+	_keyword = str;
 	for (PDFPage *p in visiblePages)
 	{
 		p.keyword = str;
@@ -183,12 +183,12 @@
 /* Show detailed view when info button has been pressed */
 - (void)detailedInfoButtonPressed:(UIButton *)sender
 {
-	if (![dataSource respondsToSelector:@selector(pageView:detailedViewForPage:)])
+	if (![_dataSource respondsToSelector:@selector(pageView:detailedViewForPage:)])
 	{
 		return;
 	}
 	
-    self.detailViewController = [dataSource pageView:self detailedViewForPage:self.page];
+    self.detailViewController = [_dataSource pageView:self detailedViewForPage:self.page];
     UIView *detailedView = [self.detailViewController view];
     
 	Page *currentPage = nil;
@@ -218,6 +218,4 @@
 
 #pragma mark - Memory Management
 
-
-@synthesize page, dataSource, keyword, detailViewController;
 @end

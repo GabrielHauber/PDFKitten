@@ -79,60 +79,6 @@
 	return [descendantFont.fontDescriptor ascent];
 }
 
-- (NSString *)stringWithPDFString:(CGPDFStringRef)pdfString
-{
-	if (self.toUnicode)
-	{
-		size_t stringLength = CGPDFStringGetLength(pdfString);
-		const unsigned char *characterCodes = CGPDFStringGetBytePtr(pdfString);
-		NSMutableString *unicodeString = [NSMutableString string];
-		
-        for (int i = 0; i < stringLength; i+=2)
-		{
-			const unichar characterCode = (characterCodes[i] << 8) | characterCodes[i+1];
-			const NSUInteger uni = [self.toUnicode unicodeCharacter:characterCode];
-            if (uni == NSNotFound) {                                
-                [unicodeString appendString:@"?"];
-            } else {
-                [unicodeString appendFormat:@"%C", (unichar)uni];
-            }
-        
-		}
-		return unicodeString;
-	}
-	else if ([self.descendantFonts count] > 0)
-	{
-		PDFFont *descendantFont = [self.descendantFonts lastObject];
-		return [descendantFont stringWithPDFString:pdfString];
-	}
-	return @"";
-}
-
-- (NSString *)unicodeWithPDFString:(CGPDFStringRef)pdfString {
-    NSMutableString *result;
-	PDFFont *descendantFont = [self.descendantFonts lastObject];
-    NSString *descendantResult = [descendantFont stringWithPDFString: pdfString];
-    if (self.toUnicode) {
-        result = [[NSMutableString alloc] initWithCapacity: [descendantResult length]];
-        for (int i = 0; i < [descendantResult length]; i++) {
-            unichar characterCode = [descendantResult characterAtIndex:i];
-            const NSUInteger uni = [self.toUnicode unicodeCharacter:characterCode];
-            if (uni == NSNotFound) {                
-                [result appendString:@"?"];
-            } else {
-                [result appendFormat:@"%C", (unichar)uni];
-            }
-        }        
-    } else {
-        result = [NSMutableString stringWithString: descendantResult];
-    }
-    return result;
-}
-
-- (NSString *)cidWithPDFString:(CGPDFStringRef)pdfString {
-    PDFFont *descendantFont = [self.descendantFonts lastObject];
-    return [descendantFont stringWithPDFString: pdfString];
-}
 
 #pragma mark -
 #pragma mark Memory Management

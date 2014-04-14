@@ -44,68 +44,25 @@
 	[self setEncodingWithEncodingObject:encodingObject];
 }
 
-/* Custom implementation for all simple fonts */
-- (NSString *)stringWithPDFString:(CGPDFStringRef)pdfString
-{
-	const unsigned char *bytes = CGPDFStringGetBytePtr(pdfString);
-	NSUInteger length = CGPDFStringGetLength(pdfString);
+- (void)enumeratePDFStringCharacters:(CGPDFStringRef)pdfString usingBlock:(void (^)(NSUInteger, NSString *))block {
     
-	if (!self.encoding && self.toUnicode)
-	{
-		// Use ToUnicode map
-		NSMutableString *unicodeString = [NSMutableString string];
-
-		// Translate to Unicode
-		for (int i = 0; i < length; i++)
-		{
-			unichar cid = bytes[i];
+    if (self.encodingDifferences) {
+        
+        const unsigned char *bytes = CGPDFStringGetBytePtr(pdfString);
+        NSUInteger length = CGPDFStringGetLength(pdfString);
+        
+		for (int i = 0; i < length; i++) {
             
-            if (self.encodingDifferences) {
-                
-                const NSUInteger chr = [self.encodingDifferences mapCid:cid withEncoding:self.encoding];
-                if (chr != NSNotFound) {
-                    [unicodeString appendFormat:@"%C", (unichar)chr];
-                    continue;
-                }
-            }
-            
-            const NSUInteger uni = [self.toUnicode unicodeCharacter:cid];
-            if (uni == NSNotFound) {
-                [unicodeString appendFormat:@"%C", cid];
-            } else {
-                [unicodeString appendFormat:@"%C", (unichar)uni];
-            }
-		}
-		
-		return unicodeString;
-        
-	} else if (self.encodingDifferences) {
-        
-        NSMutableString *unicodeString = [NSMutableString string];
-        
-		for (int i = 0; i < length; i++)
-		{
 			unichar cid = bytes[i];
             NSUInteger chr = [self.encodingDifferences mapCid:cid withEncoding:self.encoding];
-            if (chr == NSNotFound) {
-                [unicodeString appendFormat:@"%C", cid];
-            } else {                
-                [unicodeString appendFormat:@"%C", (unichar)chr];
-            }
+            
+            block(cid, [NSString stringWithFormat:@"%C", (unichar)(chr == NSNotFound ? cid : chr)]);
 		}
 		
-		return unicodeString;
+		return;
     }
-    
-	else if (!self.encoding)
-	{
-		return [super stringWithPDFString:pdfString];
-	}
-    
-    NSData *rawBytes = [NSData dataWithBytes:bytes length:length];
-	NSString *string = [[NSString alloc] initWithData:rawBytes encoding:nativeEncoding(self.encoding)];
-                    
-	return string;
+
+    [super enumeratePDFStringCharacters:pdfString usingBlock:block];
 }
 
 /* Set encoding with name or dictionary */
@@ -186,16 +143,16 @@
         
     } else if (self.toUnicode) {
         
-        cid = [self.toUnicode cidCharacter:0x20];
-        if (cid == NSNotFound) {
-            cid = [self.toUnicode cidCharacter:0xA0]; // no-break space
-        }
-        if (cid == NSNotFound) {
-            cid = [self.toUnicode cidCharacter:0x2000]; // EN QUAD
-        }
-        if (cid == NSNotFound) {
-            cid = [self.toUnicode cidCharacter:0x2002 ]; // EN SPACE
-        }
+//        cid = [self.toUnicode cidCharacter:0x20];
+//        if (cid == NSNotFound) {
+//            cid = [self.toUnicode cidCharacter:0xA0]; // no-break space
+//        }
+//        if (cid == NSNotFound) {
+//            cid = [self.toUnicode cidCharacter:0x2000]; // EN QUAD
+//        }
+//        if (cid == NSNotFound) {
+//            cid = [self.toUnicode cidCharacter:0x2002 ]; // EN SPACE
+//        }
         
         // TODO: search more unicode whitespaces
     }

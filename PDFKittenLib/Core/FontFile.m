@@ -24,7 +24,7 @@ static NSDictionary *charactersByName = nil;
 		NSCharacterSet *delimiterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
 		NSCharacterSet *newlineCharacterSet = [NSCharacterSet newlineCharacterSet];
 		
-		names = [NSMutableDictionary dictionary];
+		names = [NSMutableDictionary new];
 		NSString *buffer;
 		while (![scanner isAtEnd])
 		{
@@ -87,11 +87,10 @@ static NSDictionary *charactersByName = nil;
 
 - (NSString *)stringWithCode:(int)code
 {
-	static NSString *singleUnicodeCharFormat = @"%C";
 	NSString *characterName = [names objectForKey:[NSNumber numberWithInt:code]];
 	unichar unicodeValue = [FontFile characterByName:characterName];
     if (!unicodeValue) unicodeValue = code;
-	return [NSString stringWithFormat:singleUnicodeCharFormat, unicodeValue];
+	return [NSString stringWithFormat:@"%C", unicodeValue];
 }
 
 - (NSString *)text

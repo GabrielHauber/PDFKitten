@@ -47,7 +47,7 @@
     }
     
     DocumentsView *docView = [[DocumentsView alloc] init];
-	docView.delegate = self;
+	docView.documentsDelegate = self;
     libraryPopover = [[UIPopoverController alloc] initWithContentViewController:docView];
     libraryPopover.delegate = self;
     [libraryPopover presentPopoverFromBarButtonItem:sender permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];

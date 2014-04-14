@@ -7,10 +7,9 @@
 + (PDFScanner *)scannerWithPage:(CGPDFPageRef)page;
 
 - (NSArray *)select:(NSString *)keyword;
+- (NSString *)scanText;
 - (CGRect)boundingBox;
 
 @property (nonatomic, strong) PDFFontCollection *fontCollection;
-@property (nonatomic, strong) NSMutableString *content;
-@property (nonatomic, strong) NSMutableArray *selections;
 
 @end

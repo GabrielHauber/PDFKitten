@@ -19,12 +19,18 @@
 - (id)initWithString:(NSString *)string;
 
 /* Unicode mapping for character ID */
-- (NSUInteger)unicodeCharacter:(unichar)cid;
+- (NSData *)unicodeMappingData:(NSUInteger)cid;
+- (NSString *)unicodeMappingString:(NSUInteger)cid;
 
-- (NSUInteger)cidCharacter:(unichar)unicode;
+@property(nonatomic, readonly) NSUInteger codeSpaceRangeMinSize;
+@property(nonatomic, readonly) NSUInteger codeSpaceRangeMaxSize;
+
+- (BOOL)isInCodeSpaceRange:(NSUInteger)cid;
 
 @property (nonatomic, strong) NSMutableArray *codeSpaceRanges;
 @property (nonatomic, strong) NSMutableDictionary *characterMappings;
 @property (nonatomic, strong) NSMutableDictionary *characterRangeMappings;
+
+- (void)enumeratePDFStringCharacters:(CGPDFStringRef)pdfString usingBlock:(void (^)(NSUInteger, NSString *))block;
 
 @end

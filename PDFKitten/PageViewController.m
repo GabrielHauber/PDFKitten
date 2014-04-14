@@ -1,5 +1,9 @@
 #import "PageViewController.h"
 
+@interface PageViewController ()
+@property (weak, nonatomic) IBOutlet PageView *pageView;
+@end
+
 @implementation PageViewController
 
 - (NSInteger)numberOfPagesInPageView:(PageView *)pageView
@@ -18,7 +22,7 @@
 - (void)viewDidAppear:(BOOL)animated
 {
 	[super viewDidAppear:animated];
-	[pageView reloadData];
+	[_pageView reloadData];
 }
 
 - (void)viewDidLoad
@@ -32,5 +36,4 @@
 	return YES;
 }
 
-@synthesize pageView;
 @end

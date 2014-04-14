@@ -28,8 +28,6 @@ const char *kFontSubtypeKey = "Subtype";
 const char *kFontKey = "Font";
 const char *kTypeKey = "Type";
 
-typedef const unsigned char CharacterCode;
-
 #pragma mark 
 
 
@@ -69,8 +67,7 @@ typedef const unsigned char CharacterCode;
 		font = [CIDType2Font alloc];
 	}
 	
-	[font initWithFontDictionary:dictionary];
-	return font;
+	return [font initWithFontDictionary:dictionary];
 }
 
 /* Initialize with font dictionary */
@@ -170,78 +167,37 @@ typedef const unsigned char CharacterCode;
 	return unicodeString;
 }
 
-- (NSUInteger)mappedUnicodeValue:(CharacterCode)character
-{
-    const NSUInteger value = [self.toUnicode unicodeCharacter:character];
-    return (value == NSNotFound) ? value : [self encodedUnicodeValue:character];
-}
-
-- (unichar)encodedUnicodeValue:(CharacterCode)character
-{
-	NSStringEncoding stringEncoding = nativeEncoding(self.encoding);
-    const char str[] = {character, '\0'};
-    return [[NSString stringWithCString:str encoding:stringEncoding] characterAtIndex:0];
-}
-
-/*!
- Returns a unicode string equivalent to the argument string of character codes.
- This method relies on either:
-	- the font having a known encoding (such as Mac OS Roman),
-	- a specified standard mapping,
-	- an embedded Unicode mapping, or
-	- a mapping embedded inside a font file
- 
- If neither of these produces a Unicode value, the text content can not be extracted.
- */
-- (NSString *)stringWithPDFString:(CGPDFStringRef)pdfString
-{
-	// Character codes
-	CharacterCode *characterCodes = CGPDFStringGetBytePtr(pdfString);
-	NSInteger characterCodeCount = CGPDFStringGetLength(pdfString);
-
-    NSMutableString *string = [NSMutableString string];
-    for (int i = 0; i < characterCodeCount; i++)
-    {
-        CharacterCode code = characterCodes[i];
-        const NSUInteger uni = [self mappedUnicodeValue:code];
-        if (uni == NSNotFound) {
-            [string appendFormat:@"%c", code];
-        } else {
-            [string appendFormat:@"%C", (unichar)uni];
-        }        
+- (void)enumeratePDFStringCharacters:(CGPDFStringRef)pdfString usingBlock:(void (^)(NSUInteger, NSString *))block {
+    
+    if (self.toUnicode) {
+        [self.toUnicode enumeratePDFStringCharacters:pdfString usingBlock:block];
+        return;
     }
-	
-	return [NSString stringWithString:string];
-}
+    
+    const unsigned char *bytes = CGPDFStringGetBytePtr(pdfString);
+    NSUInteger length = CGPDFStringGetLength(pdfString);
 
-- (NSString *)cidWithPDFString:(CGPDFStringRef)pdfString {
-    // Copy PDFString to NSString
-    NSString *string = (NSString *) CFBridgingRelease(CGPDFStringCopyTextString(pdfString));
-	return string;
-}
-
-- (NSString *)unicodeWithPDFString:(CGPDFStringRef)pdfString
-{
-	const unsigned char *bytes = CGPDFStringGetBytePtr(pdfString);
-	NSInteger length = CGPDFStringGetLength(pdfString);
-	if (self.toUnicode)
-	{
-		NSMutableString *unicodeString = [NSMutableString string];
-		for (int i = 0; i < length; i++)
-		{
-            const unsigned char cid = bytes[i];
-            const NSUInteger uni =[self.toUnicode unicodeCharacter:cid];
-            if (uni == NSNotFound) {
-                [unicodeString appendFormat:@"%c", cid];
-            } else {
-                [unicodeString appendFormat:@"%C", (unichar)uni];
-            }
-		}
-		return unicodeString;
-	}
-    else {
-        return [self stringWithPDFString:pdfString];
+    if (self.fontDescriptor.fontFile) {
+        
+        FontFile *fontFile = self.fontDescriptor.fontFile;
+        
+        
+        for (int i = 0; i < length; i++) {
+            unichar cid = bytes[i];
+            block(cid, [fontFile stringWithCode:cid]);
+        }
+        
+        return;
     }
+    
+    NSData *rawBytes = [NSData dataWithBytes:bytes length:length];
+	NSString *string = [[NSString alloc] initWithData:rawBytes encoding:nativeEncoding(self.encoding)];
+    
+    for (int i = 0; i < length; i++) {
+        unichar cid = bytes[i];
+        block(cid, [string substringWithRange:NSMakeRange(i, 1)]);
+    }
+
 }
 
 /* Lowest point of any character */

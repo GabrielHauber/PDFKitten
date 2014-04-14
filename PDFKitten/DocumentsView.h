@@ -4,9 +4,8 @@
 	UITableViewController *tableViewController;
 	NSArray *documents;
 	NSDictionary *urlsByName;
-	
-	id __weak delegate;
 }
 
-@property (nonatomic, weak) id delegate;
+@property (nonatomic, weak) id documentsDelegate;
+
 @end
