@@ -1,19 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "PDFKFont.h"
 
-@interface PDFKRenderingState : NSObject <NSCopying> {
-	CGAffineTransform lineMatrix;
-	CGAffineTransform textMatrix;
-	CGAffineTransform ctm;
-	CGFloat leading;
-	CGFloat wordSpacing;
-	CGFloat characterSpacing;
-	CGFloat horizontalScaling;
-	CGFloat textRise;
-	PDFKFont *font;
-	CGFloat fontSize;
-    CGFloat cachedWidthOfSpace;
-}
+@interface PDFKRenderingState : NSObject <NSCopying>
 
 /* Set the text matrix and (optionally) the line matrix */
 - (void)setTextMatrix:(CGAffineTransform)matrix replaceLineMatrix:(BOOL)replace;
@@ -50,5 +38,7 @@
 @property (nonatomic, assign) CGFloat fontSize;
 
 - (CGFloat) widthOfSpace;
+
+- (CGRect)frame;
 
 @end

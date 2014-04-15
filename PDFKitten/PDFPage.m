@@ -2,7 +2,9 @@
 #import "PDFKSelection.h"
 #import <QuartzCore/QuartzCore.h>
 
-@implementation PDFContentView
+@implementation PDFContentView {
+    CGRect _boundingBox;
+}
 
 #pragma mark - Initialization
 
@@ -38,7 +40,7 @@
 	{
 		if (!selections)
 		{
-			self.selections = [self.scanner select:self.keyword];
+			self.selections = [self.scanner scanSelectionsMatchingString:self.keyword];
 		}
 		return selections;
 	}
@@ -58,20 +60,21 @@
 	CGAffineTransform transform = CGPDFPageGetDrawingTransform(pdfPage, kCGPDFCropBox, layer.bounds, -rotationAngle, YES);
 	CGContextConcatCTM(ctx, transform);
 
-	CGContextDrawPDFPage(ctx, pdfPage);
-	
+    CGContextSetFillColorWithColor(ctx, [[UIColor colorWithRed:0.9 green:0.9 blue:1 alpha:1] CGColor]);
+    CGContextFillRect(ctx, _boundingBox);
+
 	if (self.keyword)
     {
         CGContextSetFillColorWithColor(ctx, [[UIColor yellowColor] CGColor]);
-        CGContextSetBlendMode(ctx, kCGBlendModeMultiply);
+//        CGContextSetBlendMode(ctx, kCGBlendModeMultiply);
+
         for (PDFKSelection *s in self.selections)
         {
-            CGContextSaveGState(ctx);
-            CGContextConcatCTM(ctx, s.transform);
             CGContextFillRect(ctx, s.frame);
-            CGContextRestoreGState(ctx);
         }
     }
+
+	CGContextDrawPDFPage(ctx, pdfPage);
 }
 
 #pragma mark PDF drawing
@@ -90,7 +93,10 @@
 {
     CGPDFPageRelease(pdfPage);
 	pdfPage = CGPDFPageRetain(page);
-	self.scanner = [PDFKPageScanner scannerWithPage:pdfPage];
+	self.scanner = [[PDFKPageSelectionsScanner alloc] initWithPage:pdfPage];
+    
+    PDFKPageBoundingBoxScanner *boundingBoxScanner = [[PDFKPageBoundingBoxScanner alloc] initWithPage:pdfPage];
+    _boundingBox = [boundingBoxScanner scanBoundingBox];
 }
 
 - (void)dealloc

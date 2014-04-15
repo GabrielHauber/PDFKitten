@@ -6,5 +6,4 @@
 @optional
 - (void)detectorDidStartMatching:(PDFKStringDetector *)stringDetector;
 - (void)detectorFoundString:(PDFKStringDetector *)detector;
-- (void)detector:(PDFKStringDetector *)detector didScanCharacter:(unichar)character;
 @end

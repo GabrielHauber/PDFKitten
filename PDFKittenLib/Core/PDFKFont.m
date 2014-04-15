@@ -191,7 +191,7 @@ const char *kTypeKey = "Type";
     }
     
     NSData *rawBytes = [NSData dataWithBytes:bytes length:length];
-	NSString *string = [[NSString alloc] initWithData:rawBytes encoding:nativeEncoding(self.encoding)];
+	NSString *string = [[NSString alloc] initWithData:rawBytes encoding:self.encoding];
     
     for (int i = 0; i < length; i++) {
         unichar cid = bytes[i];

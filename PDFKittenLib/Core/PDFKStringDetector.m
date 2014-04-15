@@ -17,7 +17,7 @@
 	return self;
 }
 
-- (void)appendUnicodeString:(NSString *)inputString forCharacter:(NSUInteger)cid {
+- (void)appendUnicodeString:(NSString *)inputString {
 	NSString *lowercaseString = [inputString lowercaseString];
     int position = 0;
 
@@ -30,9 +30,6 @@
                 // Read character again
                 position--;
             }
-			else if ([_delegate respondsToSelector:@selector(detector:didScanCharacter:)]) {
-				[_delegate detector:self didScanCharacter:cid];
-			}
 
             // Reset keyword position
             keywordPosition = 0;
@@ -41,10 +38,6 @@
 
         if (keywordPosition == 0 && [_delegate respondsToSelector:@selector(detectorDidStartMatching:)]) {
             [_delegate detectorDidStartMatching:self];
-        }
-
-        if ([_delegate respondsToSelector:@selector(detector:didScanCharacter:)]) {
-            [_delegate detector:self didScanCharacter:cid];
         }
 
         if (++keywordPosition < keyword.length) {

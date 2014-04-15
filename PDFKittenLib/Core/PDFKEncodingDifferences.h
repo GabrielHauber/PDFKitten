@@ -11,14 +11,12 @@
 
 @interface PDFKEncodingDifferences : NSObject
 
-- (id) initWithArray:(CGPDFArrayRef)array;
+- (id)initWithArray:(CGPDFArrayRef)array;
 
-- (NSUInteger) mapCid:(unichar)cid
-         withEncoding:(PDFKCharacterEncoding)encoding;
+- (NSUInteger)mapCid:(unichar)cid withEncoding:(PDFKCharacterEncoding)encoding;
 
-- (NSUInteger) cidForName:(NSString *)name;
+- (NSUInteger)cidForName:(NSString *)name;
 
-- (NSUInteger)cidCharacter:(unichar)unicode
-              withEncoding:(PDFKCharacterEncoding)encoding;
+- (NSUInteger)cidCharacter:(unichar)unicode withEncoding:(PDFKCharacterEncoding)encoding;
 
 @end

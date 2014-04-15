@@ -14,31 +14,15 @@ extern const char *kFontDescriptorKey;
 extern const char *kTypeKey;
 
 typedef enum : NSUInteger {
-	PDFKUnknownEncoding = 0,
-	PDFKStandardEncoding, // Defined in Type1 font programs
-	PDFKMacRomanEncoding,
-	PDFKWinAnsiEncoding,
-	PDFKDocEncoding,
-	PDFKMacExpertEncoding,
+	PDFKUnknownEncoding = NSUTF8StringEncoding,
+	PDFKStandardEncoding = NSUTF8StringEncoding, // Defined in Type1 font programs
+	PDFKMacRomanEncoding = NSMacOSRomanStringEncoding,
+	PDFKWinAnsiEncoding = NSWindowsCP1252StringEncoding,
+	PDFKDocEncoding = NSUTF8StringEncoding,
+	PDFKMacExpertEncoding = NSUTF8StringEncoding,
 	
 } PDFKCharacterEncoding;
 
-static inline NSStringEncoding nativeEncoding(PDFKCharacterEncoding encoding)
-{
-	switch (encoding) {
-		case PDFKMacRomanEncoding :
-			return NSMacOSRomanStringEncoding;
-		case PDFKWinAnsiEncoding :
-			return NSWindowsCP1252StringEncoding;
-		default:
-			return NSUTF8StringEncoding;
-	}
-}
-
-static inline BOOL knownEncoding(PDFKCharacterEncoding encoding)
-{
-	return encoding > 0;
-}
 
 @interface PDFKFont : NSObject {
 	PDFKCMap *toUnicode;

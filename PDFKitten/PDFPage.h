@@ -6,14 +6,13 @@
 	CGPDFPageRef pdfPage;
     NSString *keyword;
 	NSArray *selections;
-	PDFKPageScanner *scanner;
 }
 
 #pragma mark
 
 - (void)setPage:(CGPDFPageRef)page;
 
-@property (nonatomic, strong) PDFKPageScanner *scanner;
+@property (nonatomic, strong) PDFKPageSelectionsScanner *scanner;
 @property (nonatomic, copy) NSString *keyword;
 @property (nonatomic, copy) NSArray *selections;
 

@@ -19,7 +19,7 @@
 - (void)setKeyword:(NSString *)kword;
 - (void)reset;
 
-- (void)appendUnicodeString:(NSString *)inputString forCharacter:(NSUInteger)cid;
+- (void)appendUnicodeString:(NSString *)inputString;
 
 @property (nonatomic, weak) id<PDFKStringDetectorDelegate> delegate;
 //@property (nonatomic, retain) NSMutableString *unicodeContent;

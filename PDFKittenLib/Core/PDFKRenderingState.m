@@ -2,7 +2,9 @@
 
 #define kGlyphSpaceScale 1000
 
-@implementation PDFKRenderingState
+@implementation PDFKRenderingState {
+    CGFloat _cachedWidthOfSpace;
+}
 
 - (id)init
 {
@@ -30,7 +32,7 @@
 	copy.font = self.font;
 	copy.fontSize = self.fontSize;
 	copy.ctm = self.ctm;
-    copy->cachedWidthOfSpace = self->cachedWidthOfSpace;
+    copy->_cachedWidthOfSpace = _cachedWidthOfSpace;
 	return copy;
 }
 
@@ -89,47 +91,63 @@
 
 - (CGFloat) widthOfSpace
 {   
-    if (!cachedWidthOfSpace) {
+    if (!_cachedWidthOfSpace) {
         
-        cachedWidthOfSpace = self.font.widthOfSpace;
+        _cachedWidthOfSpace = self.font.widthOfSpace;
         
-        if (!cachedWidthOfSpace && self.font.fontDescriptor) {
+        if (!_cachedWidthOfSpace && self.font.fontDescriptor) {
             
-            cachedWidthOfSpace = self.font.fontDescriptor.missingWidth;
+            _cachedWidthOfSpace = self.font.fontDescriptor.missingWidth;
         }
         
-        if (!cachedWidthOfSpace && self.font.fontDescriptor) {
+        if (!_cachedWidthOfSpace && self.font.fontDescriptor) {
             
-            cachedWidthOfSpace = self.font.fontDescriptor.averageWidth;
+            _cachedWidthOfSpace = self.font.fontDescriptor.averageWidth;
         }
         
-        if (!cachedWidthOfSpace) {
+        if (!_cachedWidthOfSpace) {
             
             // find a minimum width
             
             for (NSNumber *number in self.font.widths.allValues) {
                 
                 const CGFloat f = number.floatValue;
-                if (f > 0 && (!cachedWidthOfSpace || (f < cachedWidthOfSpace))) {
-                    cachedWidthOfSpace = f;
+                if (f > 0 && (!_cachedWidthOfSpace || (f < _cachedWidthOfSpace))) {
+                    _cachedWidthOfSpace = f;
                 }
             }
             
-            cachedWidthOfSpace *= 0.75f;
+            _cachedWidthOfSpace *= 0.75f;
         }
         
-        if (!cachedWidthOfSpace) {
+        if (!_cachedWidthOfSpace) {
             // TODO: find another way for detecting widthOfSpace in this case
-            cachedWidthOfSpace = 100.f;
+            _cachedWidthOfSpace = 100.f;
         }
     }
     
-    return cachedWidthOfSpace;
+    return _cachedWidthOfSpace;
 }
 
+- (CGRect)frame {
+    
+    PDFKFontDescriptor *fontDescriptor = self.font.fontDescriptor;
+    
+    CGRect result = fontDescriptor.bounds;
+    
+    result.origin.x = 0;
+    result.origin.y = MAX(result.origin.y, CGRectGetMaxY(result) - fontDescriptor.ascent);
+    result.size.height = MAX(result.size.height, fontDescriptor.ascent - fontDescriptor.descent);
+    result.size.width = 0;
+    
+    CGFloat k = self.fontSize / kGlyphSpaceScale;
+    
+    result.origin.y *= k;
+    result.size.height *= k;
+    
+    result.origin = CGPointApplyAffineTransform(result.origin, CGAffineTransformConcat(_textMatrix, _ctm));
+    
+    return result;
+}
 
-#pragma mark - Memory Management
-
-
-@synthesize characterSpacing, wordSpacing, leadning, textRise, horizontalScaling, font, fontSize, lineMatrix, textMatrix, ctm;
 @end

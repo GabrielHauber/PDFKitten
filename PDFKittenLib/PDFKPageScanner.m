@@ -25,96 +25,33 @@ static void pushRenderingState(CGPDFScannerRef pdfScanner, void *info);
 static void popRenderingState(CGPDFScannerRef pdfScanner, void *info);
 static void applyTransformation(CGPDFScannerRef pdfScanner, void *info);
 
-@interface PDFKStringDetectorBBox : PDFKStringDetector
-@property (readonly, nonatomic) CGRect result;
-@end
 
 @interface PDFKPageScanner() <PDFKStringDetectorDelegate>
-@property (nonatomic, weak, readonly) PDFKRenderingState *renderingState;
-@property (nonatomic, strong) PDFKStringDetector *stringDetector;
-
-@property (nonatomic, strong) NSMutableString *content;
-
 @end
 
 @implementation PDFKPageScanner  {
 	CGPDFPageRef _pdfPage;
     
     PDFKRenderingStateStack *_renderingStateStack;
-    
-    NSMutableArray *_selections;
-    PDFKSelection *_possibleSelection;
 }
 
-+ (PDFKPageScanner *)scannerWithPage:(CGPDFPageRef)page {
-	return [[PDFKPageScanner alloc] initWithPage:page];
-}
-
-- (id)initWithPage:(CGPDFPageRef)page {
+- (instancetype)initWithPage:(CGPDFPageRef)page {
 	if (self = [super init]) {
-		_pdfPage = page;
-		self.fontCollection = [self fontCollectionWithPage:_pdfPage];
-		_selections = [NSMutableArray new];
+		_pdfPage = CGPDFPageRetain(page);
+		_fontCollection = [self fontCollectionWithPage:_pdfPage];
 	}
 	
 	return self;
 }
 
-- (NSArray *)select:(NSString *)keyword {
-
-    self.content = [NSMutableString string];
-	self.stringDetector = [PDFKStringDetector detectorWithKeyword:keyword delegate:self];
-	[_selections removeAllObjects];
-    _renderingStateStack = [PDFKRenderingStateStack stack];
-    
- 	CGPDFOperatorTableRef operatorTable = [self newOperatorTable];
-	CGPDFContentStreamRef contentStream = CGPDFContentStreamCreateWithPage(_pdfPage);
-	CGPDFScannerRef scanner = CGPDFScannerCreate(contentStream, operatorTable, (__bridge void *)(self));
-	CGPDFScannerScan(scanner);
-	
-	CGPDFScannerRelease(scanner);
-	CGPDFContentStreamRelease(contentStream);
-	CGPDFOperatorTableRelease(operatorTable);
-
-    //NSLog(@"found %d for %@", _selections.count, keyword);
-    //NSLog(@"content:%@", self.content);
-	
-    self.stringDetector.delegate = nil;
-    self.stringDetector = nil;
-    
-	return _selections;
+- (void)dealloc {
+    CGPDFPageRelease(_pdfPage);
 }
 
-- (NSString *)scanText {
-    
-    self.content = [NSMutableString string];
-    
-    _renderingStateStack = [PDFKRenderingStateStack stack];
-    
- 	CGPDFOperatorTableRef operatorTable = [self newOperatorTable];
-	CGPDFContentStreamRef contentStream = CGPDFContentStreamCreateWithPage(_pdfPage);
-	CGPDFScannerRef scanner = CGPDFScannerCreate(contentStream, operatorTable, (__bridge void *)(self));
-	CGPDFScannerScan(scanner);
-	
-	CGPDFScannerRelease(scanner);
-	CGPDFContentStreamRelease(contentStream);
-	CGPDFOperatorTableRelease(operatorTable);
-    
-	return [NSString stringWithString:_content];
-}
+- (void)scan {
 
-- (CGRect)boundingBox
-{
-    self.content = nil;
-	[_selections removeAllObjects];
-    
-    PDFKStringDetectorBBox *pdfBBOX = [[PDFKStringDetectorBBox alloc] initWithKeyword:nil];
-    
-    self.stringDetector = pdfBBOX;
-	self.stringDetector.delegate = self;
-	
     _renderingStateStack = [PDFKRenderingStateStack stack];
-        
+    
  	CGPDFOperatorTableRef operatorTable = [self newOperatorTable];
 	CGPDFContentStreamRef contentStream = CGPDFContentStreamCreateWithPage(_pdfPage);
 	CGPDFScannerRef scanner = CGPDFScannerCreate(contentStream, operatorTable, (__bridge void *)(self));
@@ -123,13 +60,6 @@ static void applyTransformation(CGPDFScannerRef pdfScanner, void *info);
 	CGPDFScannerRelease(scanner);
 	CGPDFContentStreamRelease(contentStream);
 	CGPDFOperatorTableRelease(operatorTable);
-    
-    self.stringDetector.delegate = nil;
-    self.stringDetector = nil;
-        
-    const CGRect result = pdfBBOX.result;
-    
-    return result;
 }
 
 - (CGPDFOperatorTableRef)newOperatorTable {
@@ -188,28 +118,14 @@ static void applyTransformation(CGPDFScannerRef pdfScanner, void *info);
 	return collection;
 }
 
-- (void)detector:(PDFKStringDetector *)detector didScanCharacter:(unichar)cid {
-    
-    PDFKFont *font = self.renderingState.font;
-    
-    CGFloat width = [font widthOfCharacter:cid withFontSize:self.renderingState.fontSize];
-    width /= 1000;
-    width += self.renderingState.characterSpacing;
-    
-	[self.renderingState translateTextPosition:CGSizeMake(width, 0)];
+- (void)didScanString:(NSString *)string {
+    if ([_delegate respondsToSelector:@selector(scanner:didScanString:)]) 
+        [_delegate scanner:self didScanString:string];
 }
 
-- (void)detectorDidStartMatching:(PDFKStringDetector *)detector {
-    
-    _possibleSelection = [PDFKSelection selectionWithState:self.renderingState];
-    _possibleSelection.foundLocation = self.content.length;
-}
-
-- (void)detectorFoundString:(PDFKStringDetector *)detector {
-    if (_possibleSelection) {
-	    _possibleSelection.finalState = self.renderingState;
-        [_selections addObject:_possibleSelection];
-        _possibleSelection = nil;
+- (void)didTranslatePositionForString:(NSString *)string {
+    if ([_delegate respondsToSelector:@selector(scanner:didUpdateRenderingStateForString:)]) {
+        [_delegate scanner:self didUpdateRenderingStateForString:string];
     }
 }
 
@@ -227,6 +143,168 @@ static void applyTransformation(CGPDFScannerRef pdfScanner, void *info);
 
 @end
 
+
+#pragma mark - PDFKPageTextScanner
+
+
+@interface PDFKPageTextScanner () <PDFKScannerDelegate>
+@end
+
+
+@implementation PDFKPageTextScanner {
+    __weak NSMutableString *_text;
+}
+
+- (instancetype)initWithPage:(CGPDFPageRef)page {
+    self = [super init];
+    if (self) {
+        self.delegate = self;
+    }
+    return self;
+}
+
+- (NSString *)scanText {
+    
+    NSMutableString *text = [NSMutableString new];
+
+    _text = text;
+
+    [self scan];
+    
+	return [NSString stringWithString:text];
+}
+
+
+#pragma mark - PDFKScannerDelegate Methods
+
+- (void)scanner:(PDFKPageScanner *)scanner didScanString:(NSString *)string {
+    [_text appendString:string];
+}
+
+@end
+
+
+#pragma mark - PDFKPageSelectionsScanner
+
+
+@interface PDFKPageSelectionsScanner () <PDFKScannerDelegate>
+@end
+
+
+@implementation PDFKPageSelectionsScanner {
+    NSUInteger _location;
+    
+    NSMutableArray *_selections;
+    PDFKSelection *_possibleSelection;
+    PDFKSelection *_foundSelection;
+    
+    PDFKStringDetector *_stringDetector;
+}
+
+- (instancetype)initWithPage:(CGPDFPageRef)page {
+    self = [super initWithPage:page];
+    if (self) {
+        self.delegate = self;
+    }
+    return self;
+}
+
+- (NSArray *)scanSelectionsMatchingString:(NSString *)seachString {
+    
+    _location = 0;
+    
+    NSMutableArray *selections = [NSMutableArray new];
+    _selections = selections;
+    
+	_stringDetector = [PDFKStringDetector detectorWithKeyword:seachString delegate:self];
+
+    [self scan];
+    
+    _stringDetector = nil;
+    
+	return [NSArray arrayWithArray:selections];
+}
+
+
+#pragma mark - PDFKScannerDelegate Methods
+
+- (void)scanner:(PDFKPageScanner *)scanner didScanString:(NSString *)string {
+    
+    [_stringDetector appendUnicodeString:string];
+    
+    _location += string.length;
+}
+
+- (void)scanner:(PDFKPageScanner *)scanner didUpdateRenderingStateForString:(NSString *)string {
+
+    if (_foundSelection) {
+
+        _foundSelection.finalState = self.renderingState;
+        
+        [_selections addObject:_foundSelection];
+        
+        _foundSelection = nil;
+    }
+}
+
+
+#pragma mark - PDFKStringDetectorDelegate Methods
+
+- (void)detectorDidStartMatching:(PDFKStringDetector *)detector {
+    
+    _possibleSelection = [PDFKSelection selectionWithState:self.renderingState];
+    _possibleSelection.foundLocation = _location;
+}
+
+- (void)detectorFoundString:(PDFKStringDetector *)detector {
+    
+    if (_possibleSelection) {
+        _foundSelection = _possibleSelection;
+        _possibleSelection = nil;
+    }
+}
+
+@end
+
+
+@interface PDFKPageBoundingBoxScanner () <PDFKScannerDelegate>
+@end
+
+
+@implementation PDFKPageBoundingBoxScanner {
+    CGRect _result;
+}
+
+- (instancetype)initWithPage:(CGPDFPageRef)page {
+    self = [super initWithPage:page];
+    if (self) {
+        self.delegate = self;
+    }
+    return self;
+}
+
+- (CGRect)scanBoundingBox {
+    
+    _result = CGRectNull;
+
+	[self scan];
+    
+    return _result;
+}
+
+
+#pragma mark - PDFKScannerDelegate Methods
+
+- (void)scanner:(PDFKPageScanner *)scanner didScanString:(NSString *)string {
+    _result = CGRectUnion(_result, self.renderingState.frame);
+}
+
+- (void)scanner:(PDFKPageScanner *)scanner didUpdateRenderingStateForString:(NSString *)string {
+    _result = CGRectUnion(_result, self.renderingState.frame);
+}
+
+@end
+
 ///
 
 
@@ -238,22 +316,31 @@ void didScanSpace(float value, void *info) {
 	PDFKPageScanner *scanner = (__bridge PDFKPageScanner *) info;
     float width = [scanner.renderingState convertToUserSpace:value];
     [scanner.renderingState translateTextPosition:CGSizeMake(-width, 0)];
+
     if (isSpace(value, scanner)) {
         
-        [scanner.content appendString:@" "];
+        [scanner didScanString:@" "];
         //[scanner.stringDetector reset];
     }
 }
 
 void didScanString(CGPDFStringRef pdfString, void *info) {
 	PDFKPageScanner *scanner = (__bridge PDFKPageScanner *) info;
-	PDFKStringDetector *stringDetector = scanner.stringDetector;
 	PDFKFont *font = scanner.renderingState.font;
     
     [font enumeratePDFStringCharacters:pdfString usingBlock:^(NSUInteger cid, NSString *unicode) {
         if (unicode) {
-            [stringDetector appendUnicodeString:unicode forCharacter:cid];
-            [scanner.content appendString:unicode];
+            [scanner didScanString:unicode];
+
+            PDFKFont *font = scanner.renderingState.font;
+            
+            CGFloat width = [font widthOfCharacter:cid withFontSize:scanner.renderingState.fontSize];
+            width /= 1000;
+            width += scanner.renderingState.characterSpacing;
+            
+            [scanner.renderingState translateTextPosition:CGSizeMake(width, 0)];
+            
+            [scanner didTranslatePositionForString:unicode];
         }
     }];
 }
@@ -264,7 +351,7 @@ void didScanNewLine(CGPDFScannerRef pdfScanner, PDFKPageScanner *scanner, BOOL p
 	CGPDFScannerPopNumber(pdfScanner, &tx);
 	[scanner.renderingState newLineWithLeading:-ty indent:tx save:persistLeading];
 
-    [scanner.content appendString:@" "];
+    [scanner didScanString:@" "];
 }
 
 CGPDFStringRef getString(CGPDFScannerRef pdfScanner) {
@@ -403,10 +490,7 @@ static void printStringNewLine(CGPDFScannerRef pdfScanner, void *info) {
 	printString(pdfScanner, info);
     
     PDFKPageScanner *scanner = (__bridge PDFKPageScanner *) info;
-//    PDFKStringDetector *stringDetector = scanner.stringDetector;
-//    [stringDetector appendString:@"\n"];
-    [scanner.content appendString:@"\n"];
-    [scanner.stringDetector reset];
+    [scanner didScanString:@"\n"];
 }
 
 static void printStringNewLineSetSpacing(CGPDFScannerRef scanner, void *info) {
@@ -450,38 +534,3 @@ static void applyTransformation(CGPDFScannerRef pdfScanner, void *info) {
 	state.ctm = CGAffineTransformConcat(getTransform(pdfScanner), state.ctm);
 }
 
-
-#pragma mark - PDFStringDetectorBBox
-
-@implementation PDFKStringDetectorBBox {
-    
-    BOOL _resultIsValid;
-}
-
-- (void)appendUnicodeString:(NSString *)inputString forCharacter:(NSUInteger)cid
-{    
-    PDFKPageScanner *scanner = self.delegate;
-    PDFKSelection *selection = [PDFKSelection selectionWithState:scanner.renderingState];
-    
-    int position = 0;
-    while (position < inputString.length) {
-        
-		unichar inputCharacter = [inputString characterAtIndex:position];
-		[scanner detector:self didScanCharacter:inputCharacter];
-        ++position;        
-    }
-    
-    selection.finalState = scanner.renderingState;
-    const CGRect bbox = CGRectApplyAffineTransform(selection.frame, selection.transform);
-    if (_resultIsValid) {
-        
-        _result = CGRectUnion(bbox, _result);
-        
-    } else {
-        
-        _resultIsValid = YES;
-        _result = bbox;
-    }
-}
-
-@end
