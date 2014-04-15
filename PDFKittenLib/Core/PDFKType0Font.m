@@ -25,7 +25,7 @@
 				const char *subtype;
 				if (!CGPDFDictionaryGetName(fontDict, "Subtype", &subtype)) continue;
 
-				NSLog(@"Descendant font type %s", subtype);
+//				NSLog(@"Descendant font type %s", subtype);
 
 				if (strcmp(subtype, "CIDFontType0") == 0)
 				{

@@ -5,6 +5,9 @@
 @protocol PDFKScannerDelegate <NSObject>
 
 @optional
+- (void)scannerDidBeginTextBlock:(PDFKPageScanner *)scanner;
+- (void)scannerDidEndTextBlock:(PDFKPageScanner *)scanner;
+
 - (void)scanner:(PDFKPageScanner *)scanner didScanString:(NSString *)string;
 - (void)scanner:(PDFKPageScanner *)scanner didUpdateRenderingStateForString:(NSString *)string;
 

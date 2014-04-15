@@ -11,10 +11,10 @@
     if ((self = [super init]))
 	{
 		// Default values
-		self.textMatrix = CGAffineTransformIdentity;
-		self.lineMatrix = CGAffineTransformIdentity;
-        self.ctm = CGAffineTransformIdentity;
-		self.horizontalScaling = 1.0;
+		_textMatrix = CGAffineTransformIdentity;
+		_lineMatrix = CGAffineTransformIdentity;
+        _ctm = CGAffineTransformIdentity;
+		_horizontalScaling = 1.0;
     }
     return self;
 }
@@ -22,16 +22,16 @@
 - (id)copyWithZone:(NSZone *)zone
 {
 	PDFKRenderingState *copy = [[PDFKRenderingState alloc] init];
-	copy.lineMatrix = self.lineMatrix;
-	copy.textMatrix = self.textMatrix;
-	copy.leadning = self.leadning;
-	copy.wordSpacing = self.wordSpacing;
-	copy.characterSpacing = self.characterSpacing;
-	copy.horizontalScaling = self.horizontalScaling;
-	copy.textRise = self.textRise;
-	copy.font = self.font;
-	copy.fontSize = self.fontSize;
-	copy.ctm = self.ctm;
+	copy->_lineMatrix = _lineMatrix;
+	copy->_textMatrix = _textMatrix;
+	copy.leading = _leading;
+	copy.wordSpacing = _wordSpacing;
+	copy.characterSpacing = _characterSpacing;
+	copy.horizontalScaling = _horizontalScaling;
+	copy.textRise = _textRise;
+	copy.font = _font;
+	copy.fontSize = _fontSize;
+	copy.ctm = _ctm;
     copy->_cachedWidthOfSpace = _cachedWidthOfSpace;
 	return copy;
 }
@@ -39,27 +39,26 @@
 /* Set the text matrix, and optionally the line matrix */
 - (void)setTextMatrix:(CGAffineTransform)matrix replaceLineMatrix:(BOOL)replace
 {
-	self.textMatrix = matrix;
+	_textMatrix = matrix;
+
 	if (replace)
-	{
-		self.lineMatrix = matrix;
-	}
+		_lineMatrix = matrix;
 }
 
 /* Moves the text cursor forward */
 - (void)translateTextPosition:(CGSize)size
 {
-	self.textMatrix = CGAffineTransformTranslate(self.textMatrix, size.width, size.height);
+	_textMatrix = CGAffineTransformTranslate(_textMatrix, size.width, size.height);
 }
 
 /* Move to start of next line, with custom line height and relative indent */
-- (void)newLineWithLeading:(CGFloat)aLeading indent:(CGFloat)indent save:(BOOL)save
+- (void)newLineWithLeading:(CGFloat)leading indent:(CGFloat)indent save:(BOOL)save
 {
-	CGAffineTransform t = CGAffineTransformTranslate(self.lineMatrix, indent, -aLeading);
+	CGAffineTransform t = CGAffineTransformTranslate(_lineMatrix, indent, -leading);
 	[self setTextMatrix:t replaceLineMatrix:YES];
 	if (save)
 	{
-		self.leadning = aLeading;
+		_leading = leading;
 	}
 }
 
@@ -72,44 +71,44 @@
 /* Transforms the rendering state to the start of the next line */
 - (void)newLine
 {
-	[self newLineWithLeading:self.leadning save:NO];
+	[self newLineWithLeading:_leading save:NO];
 }
 
 /* Convert value to user space */
 - (CGFloat)convertToUserSpace:(CGFloat)value
 {
-	return value * (self.fontSize / kGlyphSpaceScale);
+	return value * (_fontSize / kGlyphSpaceScale);
 }
 
 /* Converts a size from text space to user space */
-- (CGSize)convertSizeToUserSpace:(CGSize)aSize
+- (CGSize)convertSizeToUserSpace:(CGSize)size
 {
-	aSize.width = [self convertToUserSpace:aSize.width];
-	aSize.height = [self convertToUserSpace:aSize.height];
-	return aSize;
+	size.width = [self convertToUserSpace:size.width];
+	size.height = [self convertToUserSpace:size.height];
+	return size;
 }
 
 - (CGFloat) widthOfSpace
 {   
     if (!_cachedWidthOfSpace) {
         
-        _cachedWidthOfSpace = self.font.widthOfSpace;
+        _cachedWidthOfSpace = _font.widthOfSpace;
         
-        if (!_cachedWidthOfSpace && self.font.fontDescriptor) {
+        if (!_cachedWidthOfSpace && _font.fontDescriptor) {
             
-            _cachedWidthOfSpace = self.font.fontDescriptor.missingWidth;
+            _cachedWidthOfSpace = _font.fontDescriptor.missingWidth;
         }
         
-        if (!_cachedWidthOfSpace && self.font.fontDescriptor) {
+        if (!_cachedWidthOfSpace && _font.fontDescriptor) {
             
-            _cachedWidthOfSpace = self.font.fontDescriptor.averageWidth;
+            _cachedWidthOfSpace = _font.fontDescriptor.averageWidth;
         }
         
         if (!_cachedWidthOfSpace) {
             
             // find a minimum width
             
-            for (NSNumber *number in self.font.widths.allValues) {
+            for (NSNumber *number in _font.widths.allValues) {
                 
                 const CGFloat f = number.floatValue;
                 if (f > 0 && (!_cachedWidthOfSpace || (f < _cachedWidthOfSpace))) {
@@ -131,7 +130,7 @@
 
 - (CGRect)frame {
     
-    PDFKFontDescriptor *fontDescriptor = self.font.fontDescriptor;
+    PDFKFontDescriptor *fontDescriptor = _font.fontDescriptor;
     
     CGRect result = fontDescriptor.bounds;
     
@@ -140,7 +139,7 @@
     result.size.height = MAX(result.size.height, fontDescriptor.ascent - fontDescriptor.descent);
     result.size.width = 0;
     
-    CGFloat k = self.fontSize / kGlyphSpaceScale;
+    CGFloat k = _fontSize / kGlyphSpaceScale;
     
     result.origin.y *= k;
     result.size.height *= k;

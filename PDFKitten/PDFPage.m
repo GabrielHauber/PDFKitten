@@ -97,6 +97,9 @@
     
     PDFKPageBoundingBoxScanner *boundingBoxScanner = [[PDFKPageBoundingBoxScanner alloc] initWithPage:pdfPage];
     _boundingBox = [boundingBoxScanner scanBoundingBox];
+    
+    PDFKPageTextScanner *textScanner = [[PDFKPageTextScanner alloc] initWithPage:pdfPage];
+    NSLog(@"--- page text --- \n%@\n--- page text ---", [textScanner scanText]);
 }
 
 - (void)dealloc

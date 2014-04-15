@@ -22,14 +22,14 @@
 
 
 /* Matrixes (line-, text- and global) */
-@property (nonatomic, assign) CGAffineTransform lineMatrix;
-@property (nonatomic, assign) CGAffineTransform textMatrix;
-@property (nonatomic, assign) CGAffineTransform ctm;
+@property (nonatomic, readonly) CGAffineTransform lineMatrix;
+@property (nonatomic, readonly) CGAffineTransform textMatrix;
+@property (nonatomic) CGAffineTransform ctm;
 
 /* Text size, spacing, scaling etc. */
 @property (nonatomic, assign) CGFloat characterSpacing;
 @property (nonatomic, assign) CGFloat wordSpacing;
-@property (nonatomic, assign) CGFloat leadning;
+@property (nonatomic, assign) CGFloat leading;
 @property (nonatomic, assign) CGFloat textRise;
 @property (nonatomic, assign) CGFloat horizontalScaling;
 

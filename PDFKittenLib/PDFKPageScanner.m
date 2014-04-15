@@ -15,7 +15,8 @@ static void setWordSpacing(CGPDFScannerRef pdfScanner, void *info);
 static void newLine(CGPDFScannerRef pdfScanner, void *info);
 static void newLineWithLeading(CGPDFScannerRef pdfScanner, void *info);
 static void newLineSetLeading(CGPDFScannerRef pdfScanner, void *info);
-static void newParagraph(CGPDFScannerRef pdfScanner, void *info);
+static void beginTextObject(CGPDFScannerRef pdfScanner, void *info);
+static void endTextObject(CGPDFScannerRef pdfScanner, void *info);
 static void setTextMatrix(CGPDFScannerRef pdfScanner, void *info);
 static void printString(CGPDFScannerRef pdfScanner, void *info);
 static void printStringNewLine(CGPDFScannerRef scanner, void *info);
@@ -90,7 +91,8 @@ static void applyTransformation(CGPDFScannerRef pdfScanner, void *info);
 	CGPDFOperatorTableSetCallback(operatorTable, "q", pushRenderingState);
 	CGPDFOperatorTableSetCallback(operatorTable, "Q", popRenderingState);
 	
-	CGPDFOperatorTableSetCallback(operatorTable, "BT", newParagraph);
+	CGPDFOperatorTableSetCallback(operatorTable, "BT", beginTextObject);
+	CGPDFOperatorTableSetCallback(operatorTable, "ET", endTextObject);
 	
 	return operatorTable;
 }
@@ -116,6 +118,16 @@ static void applyTransformation(CGPDFScannerRef pdfScanner, void *info);
 
 	PDFKFontCollection *collection = [[PDFKFontCollection alloc] initWithFontDictionary:fonts];
 	return collection;
+}
+
+- (void)didBeginTextBlock {
+    if ([_delegate respondsToSelector:@selector(scannerDidBeginTextBlock:)])
+        [_delegate scannerDidBeginTextBlock:self];
+}
+
+- (void)didEndTextBlock {
+    if ([_delegate respondsToSelector:@selector(scannerDidEndTextBlock:)])
+        [_delegate scannerDidEndTextBlock:self];
 }
 
 - (void)didScanString:(NSString *)string {
@@ -147,38 +159,102 @@ static void applyTransformation(CGPDFScannerRef pdfScanner, void *info);
 #pragma mark - PDFKPageTextScanner
 
 
+@interface PDFKScannerTextBlock : NSObject
+@property(nonatomic, readonly) CGPoint origin;
+@property(nonatomic, readonly) NSString *text;
+@end
+
+
+@implementation PDFKScannerTextBlock {
+    NSMutableString *_text;
+}
+
+@synthesize text = _text;
+
+- (instancetype)initWithOrigin:(CGPoint)origin {
+    self = [super init];
+    if (self) {
+        _origin = origin;
+        _text = [NSMutableString new];
+    }
+    return self;
+}
+
+- (void)appendString:(NSString *)string {
+    [_text appendString:string];
+}
+
+@end
+
+
 @interface PDFKPageTextScanner () <PDFKScannerDelegate>
 @end
 
 
 @implementation PDFKPageTextScanner {
-    __weak NSMutableString *_text;
+    NSMutableArray *_textBlocks;
+    CGPoint _lastOrigin;
 }
 
 - (instancetype)initWithPage:(CGPDFPageRef)page {
-    self = [super init];
+    self = [super initWithPage:page];
     if (self) {
         self.delegate = self;
     }
     return self;
 }
 
+static inline NSComparisonResult compareCGFloats(CGFloat float1, CGFloat float2, CGFloat d) {
+    if (float1 - float2 > d)
+        return NSOrderedDescending;
+    
+    if (float2 - float1 > d)
+        return NSOrderedAscending;
+    
+    return NSOrderedSame;
+}
+
 - (NSString *)scanText {
     
-    NSMutableString *text = [NSMutableString new];
-
-    _text = text;
-
+    _textBlocks = [NSMutableArray new];
+    
     [self scan];
     
-	return [NSString stringWithString:text];
+    [_textBlocks sortUsingComparator:^NSComparisonResult(PDFKScannerTextBlock *obj1, PDFKScannerTextBlock *obj2) {
+        return compareCGFloats(obj1.origin.x, obj2.origin.x, 0.1);
+    }];
+
+    [_textBlocks sortUsingComparator:^NSComparisonResult(PDFKScannerTextBlock *obj1, PDFKScannerTextBlock *obj2) {
+        return compareCGFloats(obj2.origin.y, obj1.origin.y, 0.1);
+    }];
+    
+	NSString *result = [[_textBlocks valueForKeyPath:@"text"] componentsJoinedByString:@"\n"];
+    _textBlocks = nil;
+    
+    return result;
 }
 
 
 #pragma mark - PDFKScannerDelegate Methods
 
+- (void)scannerDidBeginTextBlock:(PDFKPageScanner *)scanner {
+    
+    PDFKRenderingState *renderingState = scanner.renderingState;
+    CGRect frame = renderingState.frame;
+    
+    PDFKScannerTextBlock *textBlock = [_textBlocks lastObject];
+    
+    if (textBlock == nil || (ABS(_lastOrigin.y - frame.origin.y) > 1.5 * frame.size.height &&
+                             ABS(textBlock.origin.x - frame.origin.x) > frame.size.height))
+        [_textBlocks addObject:[[PDFKScannerTextBlock alloc] initWithOrigin:frame.origin]];
+    else if (_lastOrigin.y - frame.origin.y > frame.size.height)
+        [textBlock appendString:@"\n"];
+
+    _lastOrigin.y = frame.origin.y;
+}
+
 - (void)scanner:(PDFKPageScanner *)scanner didScanString:(NSString *)string {
-    [_text appendString:string];
+    [[_textBlocks lastObject] appendString:string];
 }
 
 @end
@@ -326,7 +402,10 @@ void didScanSpace(float value, void *info) {
 
 void didScanString(CGPDFStringRef pdfString, void *info) {
 	PDFKPageScanner *scanner = (__bridge PDFKPageScanner *) info;
-	PDFKFont *font = scanner.renderingState.font;
+
+    [scanner didBeginTextBlock];
+	
+    PDFKFont *font = scanner.renderingState.font;
     
     [font enumeratePDFStringCharacters:pdfString usingBlock:^(NSUInteger cid, NSString *unicode) {
         if (unicode) {
@@ -343,6 +422,8 @@ void didScanString(CGPDFStringRef pdfString, void *info) {
             [scanner didTranslatePositionForString:unicode];
         }
     }];
+
+    [scanner didEndTextBlock];
 }
 
 void didScanNewLine(CGPDFScannerRef pdfScanner, PDFKPageScanner *scanner, BOOL persistLeading) {
@@ -351,7 +432,7 @@ void didScanNewLine(CGPDFScannerRef pdfScanner, PDFKPageScanner *scanner, BOOL p
 	CGPDFScannerPopNumber(pdfScanner, &tx);
 	[scanner.renderingState newLineWithLeading:-ty indent:tx save:persistLeading];
 
-    [scanner didScanString:@" "];
+    [scanner didScanString:@"\n"];
 }
 
 CGPDFStringRef getString(CGPDFScannerRef pdfScanner) {
@@ -419,7 +500,7 @@ static void setHorizontalScale(CGPDFScannerRef pdfScanner, void *info) {
 
 static void setTextLeading(CGPDFScannerRef pdfScanner, void *info) {
 	PDFKPageScanner *scanner = (__bridge PDFKPageScanner *) info;
-	[scanner.renderingState setLeadning:getNumber(pdfScanner)];
+	[scanner.renderingState setLeading:getNumber(pdfScanner)];
 }
 
 static void setFont(CGPDFScannerRef pdfScanner, void *info) {
@@ -466,11 +547,14 @@ static void newLineSetLeading(CGPDFScannerRef pdfScanner, void *info) {
 	didScanNewLine(pdfScanner, (__bridge PDFKPageScanner *) info, YES);
 }
 
-static void newParagraph(CGPDFScannerRef pdfScanner, void *info) {
+static void beginTextObject(CGPDFScannerRef pdfScanner, void *info) {
 	PDFKPageScanner *scanner = (__bridge PDFKPageScanner *) info;
 	[scanner.renderingState setTextMatrix:CGAffineTransformIdentity replaceLineMatrix:YES];
 
 //    [scanner.content appendString:@"\n"];
+}
+
+static void endTextObject(CGPDFScannerRef pdfScanner, void *info) {
 }
 
 static void setTextMatrix(CGPDFScannerRef pdfScanner, void *info) {
