@@ -1,5 +1,5 @@
 #import "Page.h"
-#import "PDFKPageScanner.h"
+#import <PDFKitten/PDFKitten.h>
 
 
 @interface PDFContentView : PageContentView {

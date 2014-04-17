@@ -1,5 +1,5 @@
-#import <Foundation/Foundation.h>
-#import "PDFKFont.h"
+
+@class PDFKFont;
 
 @interface PDFKFontCollection : NSObject {
 	NSMutableDictionary *fonts;

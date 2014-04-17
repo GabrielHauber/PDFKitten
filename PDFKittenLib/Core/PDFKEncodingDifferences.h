@@ -6,7 +6,6 @@
 //  Copyright (c) 2013 Konstantin Bukreev. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import "PDFKFont.h"
 
 @interface PDFKEncodingDifferences : NSObject

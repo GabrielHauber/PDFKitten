@@ -1,5 +1,3 @@
-#import <Foundation/Foundation.h>
-#import "PDFKFontFile.h"
 
 
 
@@ -16,6 +14,7 @@ typedef enum : NSUInteger {
 	PDFKFontForceBold		= 1 << 18,
 } PDFKFontFlags;
 
+@class PDFKFontFile;
 
 @interface PDFKFontDescriptor : NSObject {
 	CGFloat descent;
@@ -37,9 +36,6 @@ typedef enum : NSUInteger {
 
 /* Initialize a descriptor using a FontDescriptor dictionary */
 - (id)initWithPDFDictionary:(CGPDFDictionaryRef)dict;
-
-// TODO: temporarily public
-+ (void)parseFontFile:(NSData *)data;
 
 @property (nonatomic, assign) CGRect bounds;
 @property (nonatomic, assign) CGFloat ascent;

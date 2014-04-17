@@ -9,7 +9,6 @@
  *
  */
 
-#import <Foundation/Foundation.h>
 #import "PDFKFont.h"
 
 @interface PDFKCompositeFont : PDFKFont {

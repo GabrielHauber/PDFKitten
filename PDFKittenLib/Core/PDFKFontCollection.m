@@ -1,5 +1,5 @@
 #import "PDFKFontCollection.h"
-
+#import "PDFKFont.h"
 
 @implementation PDFKFontCollection
 

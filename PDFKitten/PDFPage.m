@@ -1,5 +1,4 @@
 #import "PDFPage.h"
-#import "PDFKSelection.h"
 #import <QuartzCore/QuartzCore.h>
 
 @implementation PDFContentView {

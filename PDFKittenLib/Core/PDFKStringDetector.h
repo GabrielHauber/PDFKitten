@@ -4,7 +4,6 @@
  * current state of the detector.
  */
 
-#import <Foundation/Foundation.h>
 #import "PDFKFont.h"
 #import "PDFStringDetectorDelegate.h"
 

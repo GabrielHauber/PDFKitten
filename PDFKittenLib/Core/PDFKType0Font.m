@@ -4,10 +4,12 @@
 
 
 @interface PDFKType0Font ()
-@property (nonatomic, weak, readonly) NSMutableArray *descendantFonts;
+@property (nonatomic, readonly) NSMutableArray *descendantFonts;
 @end
 
-@implementation PDFKType0Font
+@implementation PDFKType0Font {
+	NSMutableArray *_descendantFonts;
+}
 
 /* Initialize with font dictionary */
 - (id)initWithFontDictionary:(CGPDFDictionaryRef)dict
@@ -85,12 +87,11 @@
 
 - (NSMutableArray *)descendantFonts
 {
-	if (!descendantFonts)
+	if (!_descendantFonts)
 	{
-		descendantFonts = [[NSMutableArray alloc] init];
+		_descendantFonts = [[NSMutableArray alloc] init];
 	}
-	return descendantFonts;
+	return _descendantFonts;
 }
-
 
 @end

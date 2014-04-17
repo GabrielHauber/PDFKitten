@@ -6,7 +6,6 @@
  *	Ideally, the subclasses are hidden from the user, who interacts with them through this facade class.
  *	
  */
-#import <Foundation/Foundation.h>
 #import "PDFKFontDescriptor.h"
 #import "PDFKCMap.h"
 

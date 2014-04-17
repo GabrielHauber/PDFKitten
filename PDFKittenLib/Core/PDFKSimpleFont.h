@@ -11,13 +11,11 @@
  *
  */
 
-#import <Foundation/Foundation.h>
 #import "PDFKFont.h"
-#import "PDFKEncodingDifferences.h"
 
-@interface PDFKSimpleFont : PDFKFont {
-    PDFKEncodingDifferences *encodingDifferences;
-}
+@class PDFKEncodingDifferences;
+
+@interface PDFKSimpleFont : PDFKFont 
 
 /* Custom implementation for all simple fonts */
 - (void)setWidthsWithFontDictionary:(CGPDFDictionaryRef)dict;

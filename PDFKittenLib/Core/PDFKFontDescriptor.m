@@ -1,5 +1,6 @@
 #import "PDFKFontDescriptor.h"
 #import "PDFKTrueTypeFont.h"
+#import "PDFKFontFile.h"
 #import <CommonCrypto/CommonDigest.h>
 
 const char *kAscentKey = "Ascent";
@@ -102,35 +103,6 @@ const char *kFontFileKey = "FontFile";
 
 	}
 	return self;
-}
-
-+ (void)parseFontFile:(NSData *)data
-{
-//	CGPDFDictionaryRef dict = CGPDFStreamGetDictionary(text);
-//	
-//	CGPDFInteger cleartextLength, decryptedLength, fixedLength;
-//	CGPDFInteger totalLength;
-//	CGPDFDictionaryGetInteger(dict, "Length1", &cleartextLength);
-//	CGPDFDictionaryGetInteger(dict, "Length2", &decryptedLength);
-//	CGPDFDictionaryGetInteger(dict, "Length3", &fixedLength);
-//	CGPDFDictionaryGetInteger(dict, "Length", &totalLength);
-//	
-//	NSLog(@"Lengths: %ld, %ld, %ld", cleartextLength, decryptedLength, fixedLength);
-//	NSLog(@"Total: %ld", totalLength);
-//	
-//	CGPDFDataFormat format;
-//	CFDataRef data = CGPDFStreamCopyData(text, &format);
-//	const uint8_t *ptr = CFDataGetBytePtr(data);
-//	size_t length = CFDataGetLength(data);
-//	NSData *fontData = [NSData dataWithBytes:ptr length:length];
-//
-//	size_t digestStringLength = CC_MD5_DIGEST_LENGTH * sizeof(unsigned char);
-//	unsigned char *digest = malloc(digestStringLength);
-//	bzero(digest, digestStringLength);
-//	CC_MD5(data, length, digest);
-
-	// Get first header
-	
 }
 
 /* True if a font is symbolic */

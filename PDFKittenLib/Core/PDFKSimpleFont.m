@@ -1,4 +1,5 @@
 #import "PDFKSimpleFont.h"
+#import "PDFKEncodingDifferences.h"
 
 
 @implementation PDFKSimpleFont
@@ -46,7 +47,7 @@
 
 - (void)enumeratePDFStringCharacters:(CGPDFStringRef)pdfString usingBlock:(void (^)(NSUInteger, NSString *))block {
     
-    if (self.encodingDifferences) {
+    if (_encodingDifferences) {
         
         const unsigned char *bytes = CGPDFStringGetBytePtr(pdfString);
         NSUInteger length = CGPDFStringGetLength(pdfString);
@@ -54,7 +55,7 @@
 		for (int i = 0; i < length; i++) {
             
 			unichar cid = bytes[i];
-            NSUInteger chr = [self.encodingDifferences mapCid:cid withEncoding:self.encoding];
+            NSUInteger chr = [_encodingDifferences mapCid:cid withEncoding:self.encoding];
             
             block(cid, [NSString stringWithFormat:@"%C", (unichar)(chr == NSNotFound ? cid : chr)]);
 		}
@@ -112,7 +113,7 @@
     CGPDFArrayRef diffArray = nil;
     if (CGPDFDictionaryGetArray(encodingDict, "Differences", &diffArray)) {
         
-        encodingDifferences = [[PDFKEncodingDifferences alloc] initWithArray:diffArray];
+        _encodingDifferences = [[PDFKEncodingDifferences alloc] initWithArray:diffArray];
     }
 }
 
@@ -128,15 +129,15 @@
     CGFloat result = 0;
     NSUInteger cid = NSNotFound;
     
-    if (self.encodingDifferences) {
+    if (_encodingDifferences) {
         
-        cid = [self.encodingDifferences cidForName:@"space"];
+        cid = [_encodingDifferences cidForName:@"space"];
         
         if (cid == NSNotFound) {
-            cid = [self.encodingDifferences cidForName:@"Imonospace"];
+            cid = [_encodingDifferences cidForName:@"Imonospace"];
         }
         if (cid == NSNotFound) {
-            cid = [self.encodingDifferences cidForName:@"Amonospace"];
+            cid = [_encodingDifferences cidForName:@"Amonospace"];
         }
         
         // TODO: search more adobeglyph spaces
@@ -174,8 +175,5 @@
     
     return result;
 }
-
-
-@synthesize encodingDifferences;
 
 @end

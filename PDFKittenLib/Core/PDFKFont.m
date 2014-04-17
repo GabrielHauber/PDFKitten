@@ -11,6 +11,8 @@
 #import "PDFKCIDType2Font.h"
 #import "PDFKCIDType0Font.h"
 
+#import "PDFKFontFile.h"
+
 const char *kType0Key = "Type0";
 const char *kType1Key = "Type1";
 const char *kMMType1Key = "MMType1";

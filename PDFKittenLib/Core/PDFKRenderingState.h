@@ -1,4 +1,3 @@
-#import <Foundation/Foundation.h>
 #import "PDFKFont.h"
 
 @interface PDFKRenderingState : NSObject <NSCopying>
