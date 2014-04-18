@@ -86,7 +86,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "include/${PRODUCT_NAME}";
-			dstSubfolderSpec = 16;
+			dstSubfolderSpec = 11;
 			files = (
 				01BE5AFD18FFF156009A32E9 /* PDFKPageScanner.h in CopyFiles */,
 				01BE5AFE18FFF156009A32E9 /* PDFKSelection.h in CopyFiles */,
