@@ -18,6 +18,9 @@ static void newLineSetLeading(CGPDFScannerRef pdfScanner, void *info);
 static void beginTextObject(CGPDFScannerRef pdfScanner, void *info);
 static void endTextObject(CGPDFScannerRef pdfScanner, void *info);
 static void setTextMatrix(CGPDFScannerRef pdfScanner, void *info);
+static void beginInlineImageObject(CGPDFScannerRef pdfScanner, void *info);
+static void beginInlineImageData (CGPDFScannerRef pdfScanner, void *info);
+static void endInlineImageObject(CGPDFScannerRef pdfScanner, void *info);
 static void printString(CGPDFScannerRef pdfScanner, void *info);
 static void printStringNewLine(CGPDFScannerRef scanner, void *info);
 static void printStringNewLineSetSpacing(CGPDFScannerRef scanner, void *info);
@@ -94,6 +97,10 @@ static void applyTransformation(CGPDFScannerRef pdfScanner, void *info);
 	CGPDFOperatorTableSetCallback(operatorTable, "BT", beginTextObject);
 	CGPDFOperatorTableSetCallback(operatorTable, "ET", endTextObject);
 	
+    CGPDFOperatorTableSetCallback(operatorTable, "BI", beginInlineImageObject);
+//    CGPDFOperatorTableSetCallback(operatorTable, "ID", beginInlineImageData);
+    CGPDFOperatorTableSetCallback(operatorTable, "EI", endInlineImageObject);
+    
 	return operatorTable;
 }
 
@@ -228,7 +235,8 @@ static inline NSComparisonResult compareCGFloats(CGFloat float1, CGFloat float2,
         return compareCGFloats(obj2.origin.y, obj1.origin.y, 0.1);
     }];
     
-	NSString *result = [[_textBlocks valueForKeyPath:@"text"] componentsJoinedByString:@"\n"];
+//    NSString *result = [[_textBlocks valueForKeyPath:@"text"] componentsJoinedByString:@"\n"];
+	NSString *result = [[_textBlocks valueForKeyPath:@"text"] componentsJoinedByString:@""];
     _textBlocks = nil;
     
     return result;
@@ -245,11 +253,14 @@ static inline NSComparisonResult compareCGFloats(CGFloat float1, CGFloat float2,
     PDFKScannerTextBlock *textBlock = [_textBlocks lastObject];
     
     if (textBlock == nil || (ABS(_lastOrigin.y - frame.origin.y) > 1.5 * frame.size.height &&
-                             ABS(textBlock.origin.x - frame.origin.x) > frame.size.height))
+                             ABS(textBlock.origin.x - frame.origin.x) > frame.size.height)) {
+        
         [_textBlocks addObject:[[PDFKScannerTextBlock alloc] initWithOrigin:frame.origin]];
-    else if (_lastOrigin.y - frame.origin.y > frame.size.height)
+        
+    } else if (_lastOrigin.y - frame.origin.y > frame.size.height) {
         [textBlock appendString:@"\n"];
-
+    }
+    
     _lastOrigin.y = frame.origin.y;
 }
 
@@ -432,7 +443,11 @@ void didScanNewLine(CGPDFScannerRef pdfScanner, PDFKPageScanner *scanner, BOOL p
 	CGPDFScannerPopNumber(pdfScanner, &tx);
 	[scanner.renderingState newLineWithLeading:-ty indent:tx save:persistLeading];
 
-    [scanner didScanString:@"\n"];
+    if (ty > 0) {
+        [scanner didScanString:@"\n"];
+    } else {
+        [scanner didScanString:@" "];
+    }
 }
 
 CGPDFStringRef getString(CGPDFScannerRef pdfScanner) {
@@ -562,6 +577,21 @@ static void setTextMatrix(CGPDFScannerRef pdfScanner, void *info) {
 	[scanner.renderingState setTextMatrix:getTransform(pdfScanner) replaceLineMatrix:YES];
 }
 
+static void beginInlineImageObject(CGPDFScannerRef pdfScanner, void *info) {
+    PDFKPageScanner *scanner = (__bridge PDFKPageScanner *) info;
+    [scanner didBeginTextBlock];
+    [scanner didScanString:@"\n<inline image data>\n"];
+}
+
+static void beginInlineImageData (CGPDFScannerRef pdfScanner, void *info) {
+//    PDFKPageScanner *scanner = (__bridge PDFKPageScanner *) info;
+//    [scanner didScanString:@"\n<inline image data>\n"];
+}
+
+static void endInlineImageObject(CGPDFScannerRef pdfScanner, void *info) {
+    PDFKPageScanner *scanner = (__bridge PDFKPageScanner *) info;
+    [scanner didEndTextBlock];
+}
 
 #pragma mark Print strings
 
