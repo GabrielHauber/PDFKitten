@@ -138,7 +138,7 @@ static void applyTransformation(CGPDFScannerRef pdfScanner, void *info);
 }
 
 - (void)didScanString:(NSString *)string {
-    if ([_delegate respondsToSelector:@selector(scanner:didScanString:)]) 
+    if ([_delegate respondsToSelector:@selector(scanner:didScanString:)])
         [_delegate scanner:self didScanString:string];
 }
 
@@ -201,6 +201,7 @@ static void applyTransformation(CGPDFScannerRef pdfScanner, void *info);
 @implementation PDFKPageTextScanner {
     NSMutableArray *_textBlocks;
     CGPoint _lastOrigin;
+    CGRect _lastFrame;
 }
 
 - (instancetype)initWithPage:(CGPDFPageRef)page {
@@ -226,7 +227,7 @@ static inline NSComparisonResult compareCGFloats(CGFloat float1, CGFloat float2,
     _textBlocks = [NSMutableArray new];
     
     [self scan];
-    
+
     [_textBlocks sortUsingComparator:^NSComparisonResult(PDFKScannerTextBlock *obj1, PDFKScannerTextBlock *obj2) {
         return compareCGFloats(obj1.origin.x, obj2.origin.x, 0.1);
     }];
@@ -234,12 +235,11 @@ static inline NSComparisonResult compareCGFloats(CGFloat float1, CGFloat float2,
     [_textBlocks sortUsingComparator:^NSComparisonResult(PDFKScannerTextBlock *obj1, PDFKScannerTextBlock *obj2) {
         return compareCGFloats(obj2.origin.y, obj1.origin.y, 0.1);
     }];
-    
-//    NSString *result = [[_textBlocks valueForKeyPath:@"text"] componentsJoinedByString:@"\n"];
-	NSString *result = [[_textBlocks valueForKeyPath:@"text"] componentsJoinedByString:@""];
+
+    NSString *result = [[_textBlocks valueForKeyPath:@"text"] componentsJoinedByString:@"\n"];
     _textBlocks = nil;
     
-    return result;
+    return [result copy];
 }
 
 
@@ -249,18 +249,18 @@ static inline NSComparisonResult compareCGFloats(CGFloat float1, CGFloat float2,
     
     PDFKRenderingState *renderingState = scanner.renderingState;
     CGRect frame = renderingState.frame;
-    
     PDFKScannerTextBlock *textBlock = [_textBlocks lastObject];
     
-    if (textBlock == nil || (ABS(_lastOrigin.y - frame.origin.y) > 1.5 * frame.size.height &&
-                             ABS(textBlock.origin.x - frame.origin.x) > frame.size.height)) {
-        
+    if (textBlock == nil || (ABS(_lastOrigin.y - frame.origin.y) > 1.5 * _lastFrame.size.height ||
+                             frame.origin.x < _lastFrame.origin.x)) {
         [_textBlocks addObject:[[PDFKScannerTextBlock alloc] initWithOrigin:frame.origin]];
         
     } else if (_lastOrigin.y - frame.origin.y > frame.size.height) {
         [textBlock appendString:@"\n"];
+
     }
-    
+
+    _lastFrame = frame;
     _lastOrigin.y = frame.origin.y;
 }
 
@@ -565,8 +565,6 @@ static void newLineSetLeading(CGPDFScannerRef pdfScanner, void *info) {
 static void beginTextObject(CGPDFScannerRef pdfScanner, void *info) {
 	PDFKPageScanner *scanner = (__bridge PDFKPageScanner *) info;
 	[scanner.renderingState setTextMatrix:CGAffineTransformIdentity replaceLineMatrix:YES];
-
-//    [scanner.content appendString:@"\n"];
 }
 
 static void endTextObject(CGPDFScannerRef pdfScanner, void *info) {

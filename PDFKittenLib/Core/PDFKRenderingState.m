@@ -137,14 +137,16 @@
     result.origin.x = 0;
     result.origin.y = MAX(result.origin.y, CGRectGetMaxY(result) - fontDescriptor.ascent);
     result.size.height = MAX(result.size.height, fontDescriptor.ascent - fontDescriptor.descent);
-    result.size.width = 0;
-    
+//    result.size.width = 0; // TODO: why is this set to zero; could this be more useful left alone?
+
     CGFloat k = _fontSize / kGlyphSpaceScale;
     
     result.origin.y *= k;
     result.size.height *= k;
+    result.size.width *= k;
     
     result.origin = CGPointApplyAffineTransform(result.origin, CGAffineTransformConcat(_textMatrix, _ctm));
+    result.size = CGSizeApplyAffineTransform(result.size, CGAffineTransformConcat(_textMatrix, _ctm));
     
     return result;
 }
