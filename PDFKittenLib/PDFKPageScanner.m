@@ -396,7 +396,7 @@ static inline NSComparisonResult compareCGFloats(CGFloat float1, CGFloat float2,
 
 
 static BOOL isSpace(float width, PDFKPageScanner *scanner) {
-	return abs(width) >= scanner.renderingState.widthOfSpace;
+	return fabsf(width) >= scanner.renderingState.widthOfSpace;
 }
 
 void didScanSpace(float value, void *info) {
