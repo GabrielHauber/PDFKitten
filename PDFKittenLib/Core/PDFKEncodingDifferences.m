@@ -193,14 +193,14 @@
                     return entry.pdfCode;
             }
             
-        } else {
-            
-            NSDictionary *dict = [PDFKEncodingDifferences adobeGlyphs];
-            NSNumber *uniCode = dict[name];
-            if (uniCode) {
-                return [uniCode unsignedIntegerValue];
-            }
         }
+        
+        NSDictionary *dict = [PDFKEncodingDifferences adobeGlyphs];
+        NSNumber *uniCode = dict[name];
+        if (uniCode) {
+            return [uniCode unsignedIntegerValue];
+        }
+        
     }
     
     return NSNotFound;
