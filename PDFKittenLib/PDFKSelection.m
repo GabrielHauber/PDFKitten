@@ -14,4 +14,9 @@
     return CGRectUnion(_initialState.frame, _finalState.frame);
 }
 
+- (CGAffineTransform)transform {
+    CGAffineTransform transform = CGAffineTransformConcat([_initialState textMatrix], [_initialState ctm]);
+    return CGAffineTransformMakeRotation(atan2(transform.b, transform.a));
+}
+
 @end
