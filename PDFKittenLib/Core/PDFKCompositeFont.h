@@ -11,9 +11,6 @@
 
 #import "PDFKFont.h"
 
-@interface PDFKCompositeFont : PDFKFont {
-    CGFloat defaultWidth;
-}
-
+@interface PDFKCompositeFont : PDFKFont
 @property (nonatomic, assign) CGFloat defaultWidth;
 @end

@@ -13,8 +13,8 @@
         [self setWidthsWithArray:widthsArray];
     }
 
-	CGPDFInteger defaultWidthValue;
-	if (CGPDFDictionaryGetInteger(dict, "DW", &defaultWidthValue))
+	CGPDFReal defaultWidthValue;
+	if (CGPDFDictionaryGetNumber(dict, "DW", &defaultWidthValue))
 	{
 		self.defaultWidth = defaultWidthValue;
 	}
@@ -36,9 +36,9 @@
 		{
             // [ first last width ]
 			CGPDFInteger maxCid;
-			CGPDFInteger glyphWidth;
+			CGPDFReal glyphWidth;
 			CGPDFObjectGetValue(integerOrArray, kCGPDFObjectTypeInteger, &maxCid);
-			CGPDFArrayGetInteger(widthsArray, idx++, &glyphWidth);
+			CGPDFArrayGetNumber(widthsArray, idx++, &glyphWidth);
 			[self setWidthsFrom:baseCid to:maxCid width:glyphWidth];
 		}
 		else
@@ -62,10 +62,10 @@
 - (void)setWidthsWithBase:(CGPDFInteger)base array:(CGPDFArrayRef)array
 {
     NSInteger count = CGPDFArrayGetCount(array);
-    CGPDFInteger width;
+    CGPDFReal width;
     for (int index = 0; index < count ; index++)
     {
-        if (CGPDFArrayGetInteger(array, index, &width))
+        if (CGPDFArrayGetNumber(array, index, &width))
         {
             self.widths[@(base+index)] = @(width);
         }
@@ -82,5 +82,4 @@
 	return [width floatValue] * fontSize;
 }
 
-@synthesize defaultWidth;
 @end
