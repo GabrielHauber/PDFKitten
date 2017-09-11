@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0900"
+   LastUpgradeVersion = "0830"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "87FD1534177DAEDA00070AAA"
-               BuildableName = "libPDFKitten.a"
-               BlueprintName = "PDFKitten"
+               BlueprintIdentifier = "C0675A1B1F62A6FB00F97604"
+               BuildableName = "PDFKittenLib.framework"
+               BlueprintName = "PDFKittenLib"
                ReferencedContainer = "container:PDFKitten.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -47,9 +47,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "87FD1534177DAEDA00070AAA"
-            BuildableName = "libPDFKitten.a"
-            BlueprintName = "PDFKitten"
+            BlueprintIdentifier = "C0675A1B1F62A6FB00F97604"
+            BuildableName = "PDFKittenLib.framework"
+            BlueprintName = "PDFKittenLib"
             ReferencedContainer = "container:PDFKitten.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -65,9 +65,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "87FD1534177DAEDA00070AAA"
-            BuildableName = "libPDFKitten.a"
-            BlueprintName = "PDFKitten"
+            BlueprintIdentifier = "C0675A1B1F62A6FB00F97604"
+            BuildableName = "PDFKittenLib.framework"
+            BlueprintName = "PDFKittenLib"
             ReferencedContainer = "container:PDFKitten.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

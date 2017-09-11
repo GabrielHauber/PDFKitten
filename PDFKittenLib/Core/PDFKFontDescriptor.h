@@ -1,5 +1,5 @@
-
-
+@import Foundation;
+@import CoreGraphics;
 
 /* Flags as defined in PDF 1.7 */
 typedef enum : NSUInteger {

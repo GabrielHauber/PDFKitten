@@ -1,3 +1,4 @@
+@import Foundation;
 
 @interface PDFKFontFile : NSObject {
 	NSData *data;

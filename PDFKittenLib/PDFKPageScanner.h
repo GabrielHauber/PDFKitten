@@ -1,5 +1,5 @@
-#import <Foundation/Foundation.h>
-
+@import Foundation;
+@import CoreGraphics;
 
 @class PDFKFontCollection, PDFKPageScanner, PDFKRenderingState;
 

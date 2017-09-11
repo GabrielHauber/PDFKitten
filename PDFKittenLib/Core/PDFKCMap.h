@@ -1,3 +1,5 @@
+@import Foundation;
+@import CoreGraphics;
 
 @interface PDFKCMap : NSObject {
 
