@@ -90,7 +90,6 @@
 		C0675A4E1F62B3CE00F97604 /* PDFKEncodingDifferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 87D5998417813B630087E81B /* PDFKEncodingDifferences.m */; };
 		C0675A4F1F62B3EF00F97604 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C0E15AF13589B0B004096C7 /* CoreGraphics.framework */; };
 		C0675A501F62B40700F97604 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C0E15AD13589B0B004096C7 /* Foundation.framework */; };
-		C0ABEDFC1F661762003D8426 /* PDFKitten.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BE5AC118FFDB02009A32E9 /* PDFKitten.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C0ABEDFD1F661776003D8426 /* PDFKPageScanner.h in Headers */ = {isa = PBXBuildFile; fileRef = 87FD1572177DB32200070AAA /* PDFKPageScanner.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C0ABEDFE1F661791003D8426 /* PDFKSelection.h in Headers */ = {isa = PBXBuildFile; fileRef = 87FD1574177DB32200070AAA /* PDFKSelection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
@@ -578,7 +577,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C0ABEDFE1F661791003D8426 /* PDFKSelection.h in Headers */,
-				C0ABEDFC1F661762003D8426 /* PDFKitten.h in Headers */,
 				C0675A2E1F62A6FC00F97604 /* PDFKittenLib.h in Headers */,
 				C0ABEDFD1F661776003D8426 /* PDFKPageScanner.h in Headers */,
 			);
